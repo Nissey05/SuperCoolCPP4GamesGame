@@ -5,8 +5,8 @@
 #include <Graphics/Timer.hpp>
 #include <Graphics/Font.hpp>
 #include <Graphics/ResourceManager.hpp>
-
-
+#include <Graphics/Keyboard.hpp>
+#include <Graphics/Input.hpp>
 
 #include <fmt/core.h>
 
@@ -22,12 +22,35 @@ SpriteAnim idleAnim;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
+
+float Player_x = SCREEN_WIDTH / 2 - 16;
+float Player_y = SCREEN_HEIGHT / 2 - 28;
+float Player_speed = 60.f;
+
+void InitGame() {
+
+}
+
+
 int main() {
+
+
+	//input to reload map
+
+//	Input::mapButton("Reload", [](std::span<const GamePadStateTracker> gamePadStates, const Key)) {
+//		bool b = false;
+//
+	//	for (auto& GamePadState : gamePadStates) {
+	//		b = b || GamePadState.b == ButtonState::Pressed;
+	//	}
+	//}
+
 
 	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	window.create(L"Wowzers", SCREEN_WIDTH, SCREEN_HEIGHT);
 	window.show();
+	
 
 	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44);
 
@@ -41,6 +64,34 @@ int main() {
 	while (window) {
 
 		// Update loop
+//		auto keyState = Keyboard::getState();
+		Input::update();
+
+
+		Player_x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
+		Player_y += Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+
+		if (Input::getButton("Reload")) {
+			InitGame();
+		}
+
+
+	//	if (keyState.W){
+	//		Player_y -= Player_speed * timer.elapsedSeconds();
+	//	}
+	//	if (keyState.S) {
+	//		Player_y += Player_speed * timer.elapsedSeconds();
+	//	}
+	//	if (keyState.A) {
+	//		Player_x -= Player_speed * timer.elapsedSeconds();
+	//	}
+	//	if (keyState.D) {
+	//		Player_x += Player_speed * timer.elapsedSeconds();
+	//	}
+		//if (keyState.F) {
+		//	Window::toggleVSync;
+		//}
+		
 
 		idleAnim.update(timer.elapsedSeconds());
 
@@ -49,7 +100,7 @@ int main() {
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 
-		image.drawSprite(idleAnim, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+		image.drawSprite(idleAnim, static_cast<int>(Player_x), static_cast<int>(Player_y));
 
 		window.present(image);
 

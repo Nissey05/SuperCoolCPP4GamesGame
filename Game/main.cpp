@@ -28,7 +28,8 @@ float Player_y = SCREEN_HEIGHT / 2 - 28;
 float Player_speed = 60.f;
 
 void InitGame() {
-
+	Player_x = SCREEN_WIDTH / 2;
+	Player_y = SCREEN_HEIGHT / 2;
 }
 
 
@@ -37,24 +38,30 @@ int main() {
 
 	//input to reload map
 
-//	Input::mapButton("Reload", [](std::span<const GamePadStateTracker> gamePadStates, const Key)) {
-//		bool b = false;
-//
-	//	for (auto& GamePadState : gamePadStates) {
-	//		b = b || GamePadState.b == ButtonState::Pressed;
-	//	}
-	//}
+	Input::mapButton("Reload", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
+		bool b = false;
+
+	for (auto& GamePadState : gamePadStates) {
+		b = b || GamePadState.b == ButtonState::Pressed;
+	}
+
+
+	const bool r = keyboardState.isKeyPressed(KeyCode::R);
+	const bool enter = keyboardState.isKeyPressed(KeyCode::Enter);
+
+	return b || enter || r;
+		});
 
 
 	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	window.create(L"Wowzers", SCREEN_WIDTH, SCREEN_HEIGHT);
 	window.show();
-	
+
 
 	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44);
 
-	idleAnim = SpriteAnim{ idle_sprites, 6 };
+	idleAnim = SpriteAnim(idle_sprites, 6);
 
 	Timer       timer;
 	double      totalTime = 0.0;
@@ -69,14 +76,15 @@ int main() {
 
 
 		Player_x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
-		Player_y += Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+		Player_y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
 
 		if (Input::getButton("Reload")) {
-			InitGame();
+			Player_x = SCREEN_WIDTH / 2 - 18;
+			Player_y = SCREEN_HEIGHT / 2 - 26;
 		}
 
 
-		auto rot = 
+		//auto rot = 
 
 
 	//	if (keyState.W){
@@ -94,7 +102,7 @@ int main() {
 		//if (keyState.F) {
 		//	Window::toggleVSync;
 		//}
-		
+
 
 		idleAnim.update(timer.elapsedSeconds());
 
@@ -115,7 +123,7 @@ int main() {
 				break;
 			case Event::KeyPressed:
 			{
-				switch (e.key.code)\
+				switch (e.key.code)
 				{
 				case KeyCode::Escape:
 					window.destroy();
@@ -123,7 +131,7 @@ int main() {
 				}
 
 			}	break;
-			
+
 			}
 		}
 
@@ -142,7 +150,7 @@ int main() {
 			totalTime = 0.0;
 		}
 	}
-	
+
 
 	std::cout << "Thank you for playing!" << std::endl;
 

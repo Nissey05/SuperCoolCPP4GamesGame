@@ -32,7 +32,7 @@ Math::Transform2D Player_Transform;
 float Player_speed = 60.f;
 
 void InitGame() {
-	Player_Transform.setPosition({ 0, 0});
+	Player_Transform.setPosition({ 0, SCREEN_HEIGHT/2 - 32});
 }
 
 
@@ -123,9 +123,9 @@ int main() {
 		//Render loop
 		image.clear(Color::Black);
 
-		grassTiles.draw(image, pos.x, pos.y);
+		grassTiles.draw(image, pos.x, 0);
 
-		image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, (SCREEN_HEIGHT / 2) - 32);
+		image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, pos.y);
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 

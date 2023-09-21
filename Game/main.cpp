@@ -7,6 +7,7 @@
 #include <Graphics/ResourceManager.hpp>
 #include <Graphics/Keyboard.hpp>
 #include <Graphics/Input.hpp>
+#include <Graphics/TileMap.hpp>
 
 #include <fmt/core.h>
 
@@ -18,18 +19,20 @@ Window window;
 Image image;
 Sprite sprite;
 SpriteAnim idleAnim;
+TileMap grassTiles;
 
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
+
+Math::Transform2D Player_Transform;
 
 float Player_x = SCREEN_WIDTH / 2 - 16;
 float Player_y = SCREEN_HEIGHT / 2 - 28;
 float Player_speed = 60.f;
 
 void InitGame() {
-	Player_x = SCREEN_WIDTH / 2;
-	Player_y = SCREEN_HEIGHT / 2;
+	Player_Transform.setPosition({ SCREEN_WIDTH / 2 - 16, SCREEN_HEIGHT / 2 - 28});
 }
 
 
@@ -60,8 +63,19 @@ int main() {
 
 
 	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44);
-
 	idleAnim = SpriteAnim(idle_sprites, 6);
+
+
+	//Load tilemap.
+	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 137, 44);
+	grassTiles = TileMap(grass_sprites, 30, 30);
+
+	for (int i = 0; i < 30; ++i) {
+		for (int j = 0; j < 30; ++j) {
+			grassTiles(i, j) = (i + j) % grass_sprites->getNumSprites();
+		}
+	}
+	
 
 	Timer       timer;
 	double      totalTime = 0.0;
@@ -74,13 +88,15 @@ int main() {
 //		auto keyState = Keyboard::getState();
 		Input::update();
 
-
-		Player_x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
-		Player_y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
-
+		auto pos = Player_Transform.getPosition();
+		//Player_x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
+		pos.x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
+		//Player_y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+		pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+		Player_Transform.setPosition(pos);
 		if (Input::getButton("Reload")) {
-			Player_x = SCREEN_WIDTH / 2 - 18;
-			Player_y = SCREEN_HEIGHT / 2 - 26;
+			pos.x = SCREEN_WIDTH / 2 - 18;
+			pos.y = SCREEN_HEIGHT / 2 - 26;
 		}
 
 
@@ -99,9 +115,7 @@ int main() {
 	//	if (keyState.D) {
 	//		Player_x += Player_speed * timer.elapsedSeconds();
 	//	}
-		//if (keyState.F) {
-		//	Window::toggleVSync;
-		//}
+		
 
 
 		idleAnim.update(timer.elapsedSeconds());
@@ -109,9 +123,11 @@ int main() {
 		//Render loop
 		image.clear(Color::Black);
 
-		image.drawText(Font::Default, fps, 10, 10, Color::White);
+		grassTiles.draw(image, Player_x, Player_y);
 
-		image.drawSprite(idleAnim, static_cast<int>(Player_x), static_cast<int>(Player_y));
+		image.drawSprite(idleAnim, SCREEN_WIDTH / 2 - 26, SCREEN_HEIGHT / 2 - 32);
+
+		image.drawText(Font::Default, fps, 10, 10, Color::White);
 
 		window.present(image);
 
@@ -128,7 +144,11 @@ int main() {
 				case KeyCode::Escape:
 					window.destroy();
 					break;
+				case KeyCode::F:
+					window.toggleVSync();
+					break;
 				}
+			
 
 			}	break;
 

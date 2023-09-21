@@ -5,9 +5,11 @@
 #include <Graphics/Timer.hpp>
 #include <Graphics/Font.hpp>
 #include <Graphics/ResourceManager.hpp>
-#include <Graphics/Keyboard.hpp>
 #include <Graphics/Input.hpp>
 #include <Graphics/TileMap.hpp>
+#include <Math/Transform2D.hpp>
+
+#include <glm/vec2.hpp>
 
 #include <fmt/core.h>
 
@@ -27,12 +29,10 @@ const int SCREEN_HEIGHT = 600;
 
 Math::Transform2D Player_Transform;
 
-float Player_x = SCREEN_WIDTH / 2 - 16;
-float Player_y = SCREEN_HEIGHT / 2 - 28;
 float Player_speed = 60.f;
 
 void InitGame() {
-	Player_Transform.setPosition({ SCREEN_WIDTH / 2 - 16, SCREEN_HEIGHT / 2 - 28});
+	Player_Transform.setPosition({ 0, 0});
 }
 
 
@@ -61,8 +61,10 @@ int main() {
 	window.create(L"Wowzers", SCREEN_WIDTH, SCREEN_HEIGHT);
 	window.show();
 
+	Player_Transform.setAnchor({ 16, 32 });
 
-	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44);
+
+	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44, 0 ,0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim(idle_sprites, 6);
 
 
@@ -82,6 +84,8 @@ int main() {
 	uint64_t    frameCount = 0ull;
 	std::string fps = "FPS: 0";
 
+	InitGame();
+
 	while (window) {
 
 		// Update loop
@@ -94,27 +98,23 @@ int main() {
 		//Player_y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
 		pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
 		Player_Transform.setPosition(pos);
+
+
 		if (Input::getButton("Reload")) {
-			pos.x = SCREEN_WIDTH / 2 - 18;
-			pos.y = SCREEN_HEIGHT / 2 - 26;
+			InitGame();
 		}
 
 
-		//auto rot = 
-
-
-	//	if (keyState.W){
-	//		Player_y -= Player_speed * timer.elapsedSeconds();
-	//	}
-	//	if (keyState.S) {
-	//		Player_y += Player_speed * timer.elapsedSeconds();
-	//	}
-	//	if (keyState.A) {
-	//		Player_x -= Player_speed * timer.elapsedSeconds();
-	//	}
-	//	if (keyState.D) {
-	//		Player_x += Player_speed * timer.elapsedSeconds();
-	//	}
+		auto rot = Player_Transform.getRotation();
+		if (Input::getKey(KeyCode::Q))
+		{
+			rot += 10.0 * timer.elapsedSeconds();
+		}
+		if (Input::getKey(KeyCode::E))
+		{
+			rot -= 10.0 * timer.elapsedSeconds();
+		}
+		Player_Transform.setRotation(rot);
 		
 
 
@@ -123,9 +123,9 @@ int main() {
 		//Render loop
 		image.clear(Color::Black);
 
-		grassTiles.draw(image, Player_x, Player_y);
+		grassTiles.draw(image, pos.x, pos.y);
 
-		image.drawSprite(idleAnim, SCREEN_WIDTH / 2 - 26, SCREEN_HEIGHT / 2 - 32);
+		image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, (SCREEN_HEIGHT / 2) - 32);
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 

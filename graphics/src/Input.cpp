@@ -3,6 +3,7 @@
 #include <Graphics/Keyboard.hpp>
 #include <Graphics/Mouse.hpp>
 
+
 #include <algorithm>
 #include <map>
 #include <string>
@@ -111,7 +112,7 @@ static std::map<std::string, KeyCode> g_KeyMap = {
 };
 
 static std::map<std::string, AxisCallback> g_AxisMap = {
-    { "Horizontal", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState ) {
+    { "Horizontal", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
          float leftX  = 0.0f;
          float rightX = 0.0f;
 
@@ -130,11 +131,11 @@ static std::map<std::string, AxisCallback> g_AxisMap = {
          const float left  = keyState.Left ? 1.0f : 0.0f;
          const float right = keyState.Right ? 1.0f : 0.0f;
 
-         const float x = static_cast<float>( mouseState.x );
+         
 
-         return std::clamp( leftX + rightX - a + d - left + right + x, -1.0f, 1.0f );
+         return std::clamp( leftX + rightX - a + d - left + right, -2.0f, 2.0f );
      } },
-    { "Vertical", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState ) {
+    { "Vertical", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
          float leftY  = 0.0f;
          float rightY = 0.0f;
 
@@ -153,9 +154,50 @@ static std::map<std::string, AxisCallback> g_AxisMap = {
          const float up   = keyState.Up ? 1.0f : 0.0f;
          const float down = keyState.Down ? 1.0f : 0.0f;
 
-         const float y = static_cast<float>( mouseState.y );
+         return std::clamp( leftY + rightY - s + w - down + up, -1.0f, 1.0f );
+     } },{ "HorizontalRun", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
+         float leftX  = 0.0f;
+         float rightX = 0.0f;
 
-         return std::clamp( leftY + rightY - s + w - down + up + y, -1.0f, 1.0f );
+         for ( auto& gamePadState: gamePadStates )
+         {
+             const auto state = gamePadState.getLastState();
+
+             leftX += state.thumbSticks.leftX;
+             rightX += state.thumbSticks.rightX;
+         }
+
+         const auto keyState = keyboardState.getLastState();
+
+         const float a     = keyState.A ? 2.0f : 0.0f;
+         const float d     = keyState.D ? 2.0f : 0.0f;
+         const float left  = keyState.Left ? 2.0f : 0.0f;
+         const float right = keyState.Right ? 2.0f : 0.0f;
+
+         
+
+         return std::clamp( leftX + rightX - a + d - left + right, -2.0f, 2.0f );
+     } },
+    { "VerticalRun", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
+         float leftY  = 0.0f;
+         float rightY = 0.0f;
+
+         for ( auto& gamePadState: gamePadStates )
+         {
+             const auto state = gamePadState.getLastState();
+
+             leftY += state.thumbSticks.leftY;
+             rightY += state.thumbSticks.rightY;
+         }
+
+         const auto keyState = keyboardState.getLastState();
+
+         const float s    = keyState.S ? 2.0f : 0.0f;
+         const float w    = keyState.W ? 2.0f : 0.0f;
+         const float up   = keyState.Up ? 2.0f : 0.0f;
+         const float down = keyState.Down ? 2.0f : 0.0f;
+
+         return std::clamp( leftY + rightY - s + w - down + up, -1.0f, 1.0f );
      } },
     { "Fire1", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState ) {
          float rightTrigger = 0.0f;
@@ -201,6 +243,8 @@ static std::map<std::string, AxisCallback> g_AxisMap = {
          }
 
          const float space = keyboardState.getLastState().Space ? 1.0f : 0.0f;
+
+         
 
          return std::clamp( a + space, 0.0f, 1.0f );
      } },

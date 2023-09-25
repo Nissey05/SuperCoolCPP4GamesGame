@@ -26,13 +26,14 @@ TileMap grassTiles;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
+int CHAR_START_POS = SCREEN_WIDTH / 2 - 26;
 
 Math::Transform2D Player_Transform;
 
 float Player_speed = 60.f;
 
 void InitGame() {
-	Player_Transform.setPosition({ 0, SCREEN_HEIGHT/2 - 32});
+	Player_Transform.setPosition({ CHAR_START_POS, SCREEN_HEIGHT/2 - 32});
 }
 
 
@@ -93,15 +94,23 @@ int main() {
 		Input::update();
 
 		auto pos = Player_Transform.getPosition();
-		//Player_x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
-		pos.x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
-		//Player_y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
-		pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+		if (Input::getKey(KeyCode::LeftShift)) {
+			pos.x += Input::getAxis("HorizontalRun") * Player_speed * timer.elapsedSeconds();
+			pos.y -= Input::getAxis("VerticalRun") * Player_speed * timer.elapsedSeconds();
+		}
+		else {
+			pos.x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
+			pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+		}
 		Player_Transform.setPosition(pos);
 
 
 		if (Input::getButton("Reload")) {
 			InitGame();
+		}
+
+		if (Input::getButton("Jump")) {
+			std::cout << "Jump!" << std::endl;
 		}
 
 
@@ -123,9 +132,18 @@ int main() {
 		//Render loop
 		image.clear(Color::Black);
 
-		grassTiles.draw(image, pos.x, 0);
+		if (pos.x <= CHAR_START_POS + 1) {
+			grassTiles.draw(image, 0, 0);
+			image.drawSprite(idleAnim, pos.x, SCREEN_HEIGHT / 2 - 32);
+		}
+		else {
+			grassTiles.draw(image, -pos.x + CHAR_START_POS + 1, 0);
+			image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, SCREEN_HEIGHT / 2 - 32);
+		}
 
-		image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, pos.y);
+		
+
+		
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 

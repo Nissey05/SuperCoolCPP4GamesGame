@@ -58,18 +58,7 @@ int main() {
 
 	//input to run/sprint
 
-	Input::mapButton("Sprint", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
-		bool x = false;
-
-	for (auto& GamePadState : gamePadStates) {
-		x = x || GamePadState.x == ButtonState::Pressed;
-	}
-
-	const bool shift = keyboardState.isKeyPressed(KeyCode::LeftShift);
-
-
-		return x || shift;
-		});
+	
 
 
 	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -109,14 +98,13 @@ int main() {
 		Input::update();
 
 		auto pos = Player_Transform.getPosition();
-		
-		//	pos.x += Input::getAxis("HorizontalRun") * Player_speed * timer.elapsedSeconds();
-		//	pos.y -= Input::getAxis("VerticalRun") * Player_speed * timer.elapsedSeconds();
-			
-		//} else {
+		if (Input::getButton("Sprint")) {
+			pos.x += Input::getAxis("HorizontalRun") * Player_speed * timer.elapsedSeconds();
+			pos.y -= Input::getAxis("VerticalRun") * Player_speed * timer.elapsedSeconds();	
+		} else {
 			pos.x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
 			pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
-		//}
+		}
 		Player_Transform.setPosition(pos);
 
 
@@ -127,9 +115,7 @@ int main() {
 		if (Input::getButton("Jump")) {
 			std::cout << "Jump!" << std::endl;
 		}
-		if (Input::getButton("Sprint")) {
-			std::cout << "Sprint!" << std::endl;
-		}
+		
 
 
 		auto rot = Player_Transform.getRotation();

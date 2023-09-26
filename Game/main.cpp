@@ -36,6 +36,12 @@ void InitGame() {
 	Player_Transform.setPosition({ CHAR_START_POS, SCREEN_HEIGHT/2 - 32});
 }
 
+bool Gravity(int y, bool Coll ) {
+	if (y < SCREEN_HEIGHT - 32) y--;
+	//else if ();
+	return 0;
+}
+
 
 int main() {
 
@@ -100,12 +106,12 @@ int main() {
 		auto pos = Player_Transform.getPosition();
 		if (Input::getButton("Sprint")) {
 			pos.x += Input::getAxis("HorizontalRun") * Player_speed * timer.elapsedSeconds();
-			pos.y -= Input::getAxis("VerticalRun") * Player_speed * timer.elapsedSeconds();	
+			//pos.y -= Input::getAxis("VerticalRun") * Player_speed * timer.elapsedSeconds();	
 		} else {
 			pos.x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
-			pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+			//pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
 		}
-		pos += Input::getAxis("Jump");
+		pos.y -= Input::getAxis("Jump");
 			
 		
 		Player_Transform.setPosition(pos);
@@ -138,12 +144,12 @@ int main() {
 		image.clear(Color::Black);
 
 		if (pos.x <= CHAR_START_POS + 1) {
-			grassTiles.draw(image, 0, 0);
+			//grassTiles.draw(image, 0, 0);
 			image.drawSprite(idleAnim, pos.x, SCREEN_HEIGHT / 2 - 32);
 		}
 		else {
-			grassTiles.draw(image, -pos.x + CHAR_START_POS + 1, 0);
-			image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, SCREEN_HEIGHT / 2 - 32);
+			//grassTiles.draw(image, -pos.x + CHAR_START_POS + 1, 0);
+			image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, pos.y);
 		}
 
 		

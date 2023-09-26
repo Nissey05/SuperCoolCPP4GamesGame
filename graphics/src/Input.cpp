@@ -214,7 +214,6 @@ static std::map<std::string, AxisCallback> g_AxisMap = {
 
         return std::clamp(x + shift, -1.0f, 1.0f);
      } },
-
     { "Fire1", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState ) {
          float rightTrigger = 0.0f;
 

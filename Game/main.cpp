@@ -105,6 +105,9 @@ int main() {
 			pos.x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
 			pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
 		}
+		pos += Input::getAxis("Jump");
+			
+		
 		Player_Transform.setPosition(pos);
 
 
@@ -112,9 +115,7 @@ int main() {
 			InitGame();
 		}
 
-		if (Input::getButton("Jump")) {
-			std::cout << "Jump!" << std::endl;
-		}
+		
 		
 
 

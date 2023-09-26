@@ -1,3 +1,5 @@
+#include <Player.hpp>
+
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
 #include <Graphics/Sprite.hpp>
@@ -22,6 +24,7 @@ Image image;
 Sprite sprite;
 SpriteAnim idleAnim;
 TileMap grassTiles;
+Player player;
 
 
 const int SCREEN_WIDTH = 800;
@@ -33,13 +36,14 @@ Math::Transform2D Player_Transform;
 float Player_speed = 60.f;
 
 void InitGame() {
-	Player_Transform.setPosition({ CHAR_START_POS, SCREEN_HEIGHT/2 - 32});
+	player.setPosition({ CHAR_START_POS, SCREEN_HEIGHT / 2 - 32 });
 }
 
-bool Gravity(int y, bool Coll ) {
-	if (y < SCREEN_HEIGHT - 32) y--;
-	//else if ();
-	return 0;
+void Gravity(int y, bool Coll) {
+	if (Coll) return;
+	else if (y < SCREEN_HEIGHT - 32) y--;
+
+
 }
 
 
@@ -64,7 +68,7 @@ int main() {
 
 	//input to run/sprint
 
-	
+
 
 
 	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -75,12 +79,13 @@ int main() {
 	Player_Transform.setAnchor({ 16, 32 });
 
 
-	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44, 0 ,0, BlendMode::AlphaBlend);
+	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim(idle_sprites, 6);
 
+	player = Player();
 
-	//Load tilemap.
-	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 137, 44);
+		//Load tilemap.
+		auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 137, 44);
 	grassTiles = TileMap(grass_sprites, 30, 30);
 
 	for (int i = 0; i < 30; ++i) {
@@ -88,7 +93,7 @@ int main() {
 			grassTiles(i, j) = (i + j) % grass_sprites->getNumSprites();
 		}
 	}
-	
+
 
 	Timer       timer;
 	double      totalTime = 0.0;
@@ -107,13 +112,14 @@ int main() {
 		if (Input::getButton("Sprint")) {
 			pos.x += Input::getAxis("HorizontalRun") * Player_speed * timer.elapsedSeconds();
 			//pos.y -= Input::getAxis("VerticalRun") * Player_speed * timer.elapsedSeconds();	
-		} else {
+		}
+		else {
 			pos.x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
 			//pos.y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
 		}
 		pos.y -= Input::getAxis("Jump");
-			
-		
+
+
 		Player_Transform.setPosition(pos);
 
 
@@ -121,8 +127,8 @@ int main() {
 			InitGame();
 		}
 
-		
-		
+
+
 
 
 		auto rot = Player_Transform.getRotation();
@@ -135,7 +141,7 @@ int main() {
 			rot -= 10.0 * timer.elapsedSeconds();
 		}
 		Player_Transform.setRotation(rot);
-		
+
 
 
 		idleAnim.update(timer.elapsedSeconds());
@@ -144,17 +150,17 @@ int main() {
 		image.clear(Color::Black);
 
 		if (pos.x <= CHAR_START_POS + 1) {
-			//grassTiles.draw(image, 0, 0);
+			grassTiles.draw(image, 0, 0);
 			image.drawSprite(idleAnim, pos.x, SCREEN_HEIGHT / 2 - 32);
 		}
 		else {
-			//grassTiles.draw(image, -pos.x + CHAR_START_POS + 1, 0);
+			grassTiles.draw(image, -pos.x + CHAR_START_POS + 1, 0);
 			image.drawSprite(idleAnim, (SCREEN_WIDTH / 2) - 26, pos.y);
 		}
 
-		
 
-		
+
+
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 
@@ -177,7 +183,7 @@ int main() {
 					window.toggleVSync();
 					break;
 				}
-			
+
 
 			}	break;
 

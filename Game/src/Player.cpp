@@ -37,6 +37,11 @@ void Player::update(float deltaTime) {
 
 	position.y -= Input::getAxis("Jump");
 
+	if (position.y < 600 - 37) position.y += 180.0f * deltaTime;
+	else if (position.y >= 600 - 37) position.y = 563;
+
+
+
 	sprite.update(deltaTime);
 }
 

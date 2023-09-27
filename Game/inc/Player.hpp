@@ -14,7 +14,8 @@ public:
 		Idle,
 		Running,
 		Attack,
-		Dead
+		Dead,
+		Jumping
 	};
 	//Default constructor
 	Player();

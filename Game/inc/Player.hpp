@@ -2,15 +2,24 @@
 
 
 #include <Graphics/SpriteAnim.hpp>
+#include <Math/AABB.hpp>
 #include <glm/vec2.hpp>
 
 
 class Player {
 public:
+	enum class State
+	{
+		None,
+		Idle,
+		Running,
+		Attack,
+		Dead
+	};
 	//Default constructor
 	Player();
 
-	explicit Player(const glm::vec2& pos, const Graphics::SpriteAnim&);
+	explicit Player(const glm::vec2& pos, const Graphics::SpriteAnim& _sprite);
 
 	void update(float deltaTime);
 
@@ -19,9 +28,19 @@ public:
 	void setPosition(const glm::vec2& pos);
 	const glm::vec2& getPosition() const;
 
+	void translate(const glm::vec2& t);
+
+	const Math::AABB getAABB() const;
+
 
 private:
-	glm::vec2 position;
-	float Speed{ 60.0f };
+	void setState(State newState);
+
+	State state = State::None;
+	glm::vec2 position{ 0 };
+	glm::vec2 velocity{ 0 };
+	float speed{ 60.0f };
+	float runspeed{ 2.0f * speed };
 	Graphics::SpriteAnim sprite;
+	Math::AABB aabb;
 };

@@ -35,10 +35,17 @@ void Player::update(float deltaTime) {
 		setState(State::Idle);
 	}
 
+	if (Input::getButton("Jump")) {
+		position.y--;
+	}
+	else {
+		if (position.y < 600 - 37) position.y += 180.0f * deltaTime;
+		else if (position.y >= 600 - 37) position.y = 563;
+	}
+
 	position.y -= Input::getAxis("Jump");
 
-	if (position.y < 600 - 37) position.y += 180.0f * deltaTime;
-	else if (position.y >= 600 - 37) position.y = 563;
+	
 
 
 

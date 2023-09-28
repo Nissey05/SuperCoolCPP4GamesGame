@@ -134,7 +134,7 @@ int main() {
 
 
 		//Render loop
-		image.clear(Color::Black);
+		image.clear(Color::Cyan);
 
 		//if (pos.x <= SCREEN_WIDTH / 2 - 26 + 1) {
 		//	grassTiles.draw(image, 0, 0);
@@ -148,7 +148,7 @@ int main() {
 
 
 
-		grassTiles.draw(image);
+		//grassTiles.draw(image);
 
 		player.draw(image);
 

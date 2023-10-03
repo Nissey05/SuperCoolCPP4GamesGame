@@ -20,7 +20,7 @@ public:
 	//Default constructor
 	Player();
 
-	explicit Player(const glm::vec2& pos, const Graphics::SpriteAnim& _sprite);
+	explicit Player(const glm::vec2& pos);
 
 	void update(float deltaTime);
 
@@ -33,6 +33,12 @@ public:
 
 	const Math::AABB getAABB() const;
 
+	void doIdle(float deltaTime);
+
+	void doRunning(float deltaTime);
+
+	void doMovement(float deltaTime);
+
 
 private:
 	void setState(State newState);
@@ -42,6 +48,7 @@ private:
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
 	float runspeed{ 2.0f * speed };
-	Graphics::SpriteAnim sprite;
+	Graphics::SpriteAnim idleAnim;
+	Graphics::SpriteAnim runAnim;
 	Math::AABB aabb;
 };

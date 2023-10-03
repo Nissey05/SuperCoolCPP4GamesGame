@@ -64,8 +64,8 @@ int main() {
 	window.create(L"Wowzers", SCREEN_WIDTH, SCREEN_HEIGHT);
 	window.show();
 
-	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44, 0, 0, BlendMode::AlphaBlend);
-	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, SpriteAnim(idle_sprites, 6));
+	
+	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2});
 
 		//Load tilemap.
 		auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 137, 44);
@@ -136,14 +136,14 @@ int main() {
 		//Render loop
 		image.clear(Color::Cyan);
 
-		//if (pos.x <= SCREEN_WIDTH / 2 - 26 + 1) {
-		//	grassTiles.draw(image, 0, 0);
-		//	image.drawSprite(idleAnim, pos.x, pos.y);
-		//}
-		//else {
-		//	grassTiles.draw(image, -pos.x + SCREEN_WIDTH / 2 - 26 + 1, 0);
-		//	image.drawSprite(player, (SCREEN_WIDTH / 2) - 26, pos.y);
-		//}
+		/*if (pos.x <= SCREEN_WIDTH / 2 - 26 + 1) {
+			grassTiles.draw(image, 0, 0);
+			image.drawSprite(idleAnim, pos.x, pos.y);
+		}
+		else {
+			grassTiles.draw(image, -pos.x + SCREEN_WIDTH / 2 - 26 + 1, 0);
+			image.drawSprite(player, (SCREEN_WIDTH / 2) - 26, pos.y);
+		}*/
 		
 
 

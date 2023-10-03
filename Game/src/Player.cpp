@@ -4,6 +4,7 @@
 #include <Graphics/ResourceManager.hpp>
 #include <Graphics/Font.hpp>
 
+
 #include <map>
 #include <string>
 	
@@ -72,6 +73,11 @@ Player::Player(const glm::vec2& pos)
 //}
 
 void Player::draw(Graphics::Image& image) {
+glm::mat3 t = {
+	1, 0, 0
+	0, 1, 0
+	position.x, position.y, 1
+};
 	switch (state)
 	{
 	case State::Idle:
@@ -128,7 +134,7 @@ void Player::doIdle(float deltaTime) {
 		setState(State::Idle);
 	}
 
-	idleSprite.update(deltaTime);
+	idleAnim.update(deltaTime);
 }
 
 void Player::doRunning(float deltaTime) {
@@ -138,5 +144,5 @@ void Player::doRunning(float deltaTime) {
 		setState(State::Running)
 	}
 
-	idleSprite.update(deltaTime);
+	runAnim.update(deltaTime);
 }

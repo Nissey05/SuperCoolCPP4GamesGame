@@ -6,6 +6,8 @@
 #include <Math/AABB.hpp>
 #include <Math/Math.hpp>
 
+#include<glm/gtx/matrix_query.hpp> //isIdentity
+
 #include <stb_image.h>
 #include <stb_image_write.h>
 
@@ -495,6 +497,17 @@ void Image::drawSprite( const Sprite& sprite, const glm::mat3& matrix ) noexcept
     std::shared_ptr<Image> image = sprite.getImage();
     if ( !image )
         return;
+
+   // If the top-left area of the matrix is identity, then there is no rotation or scale.
+   // In this case, use the fast-path to draw the sprite.
+    if (glm::isIdentity(glm::mat2{ matrix }, 0.0001f))
+    {
+        const int x = static_cast<int>(matrix[2][0]);
+        const int y = static_cast<int>(matrix[2][1]);
+
+        drawSprite(sprite, x, y);
+        return;
+    }
 
     const Color       color     = sprite.getColor();
     const BlendMode   blendMode = sprite.getBlendMode();

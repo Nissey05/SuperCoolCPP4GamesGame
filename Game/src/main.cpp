@@ -10,17 +10,21 @@
 #include <Graphics/Input.hpp>
 #include <Graphics/TileMap.hpp>
 #include <Math/Transform2D.hpp>
+#include <Math/Camera2D.hpp>
 
 #include <glm/vec2.hpp>
 #include <fmt/core.h>
 #include <iostream>
 
 using namespace Graphics;
+using namespace Math;
 
 Window window;
 Image image;
 TileMap grassTiles;
 Player player;
+Camera2D camera;
+
 
 
 const int SCREEN_WIDTH = 800;
@@ -121,6 +125,7 @@ int main() {
 
 			player.translate(correction);
 		}
+		camera.setPosition(player.getPosition());
 		
 
 		
@@ -148,7 +153,7 @@ int main() {
 
 
 
-		//grassTiles.draw(image);
+		grassTiles.draw(image, camera);
 
 		player.draw(image);
 

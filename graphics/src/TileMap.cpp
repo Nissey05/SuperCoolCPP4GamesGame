@@ -1,5 +1,7 @@
 #include <Graphics/TileMap.hpp>
 
+#include<glm/gtx/transform.hpp>
+
 using namespace Graphics;
 
 TileMap::TileMap( std::shared_ptr<SpriteSheet> spriteSheet, uint32_t columns, uint32_t rows )
@@ -35,7 +37,7 @@ void TileMap::setSpriteGrid( std::span<const int> _spriteGrid )
     spriteGrid = std::vector( _spriteGrid.begin(), _spriteGrid.end() );
 }
 
-void TileMap::draw( Image& image, int xOffset, int yOffset ) const
+void TileMap::draw( Image& image, int transform ) const
 {
     if ( !spriteSheet )
         return;
@@ -44,17 +46,22 @@ void TileMap::draw( Image& image, int xOffset, int yOffset ) const
     const int spriteHeight = static_cast<int>( spriteSheet->getSpriteHeight() );
     const int numSprites   = static_cast<int>( spriteSheet->getNumSprites() );
 
-    int x = xOffset;
-    int y = yOffset;
+    int x = 0;
+    int y = 0;
     for ( uint32_t i = 0u; i < rows; ++i )
     {
-        x = xOffset;
+        x = 0;
         for ( uint32_t j = 0; j < columns; ++j )
         {
             const int spriteId = spriteGrid[i * columns + j];
             if ( spriteId >= 0 && spriteId < numSprites )
             {
-                image.drawSprite( spriteSheet->getSprite( spriteId ), x, y );
+                glm::mat3 t = {
+                    1, 0, 0,
+                    0, 1, 0,
+                    x, y, 1
+                };
+                image.drawSprite( spriteSheet->getSprite( spriteId ), transform * t );
             }
             x += spriteWidth;
         }

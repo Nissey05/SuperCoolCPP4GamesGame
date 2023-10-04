@@ -37,7 +37,7 @@ void TileMap::setSpriteGrid( std::span<const int> _spriteGrid )
     spriteGrid = std::vector( _spriteGrid.begin(), _spriteGrid.end() );
 }
 
-void TileMap::draw( Image& image, int transform ) const
+void TileMap::draw( Image& image, const glm::mat3& transform ) const
 {
     if ( !spriteSheet )
         return;

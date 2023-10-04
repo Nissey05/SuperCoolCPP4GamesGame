@@ -37,12 +37,6 @@ void InitGame() {
 	player.setPosition({ CHAR_START_POS, SCREEN_HEIGHT / 2 - 32 });
 }
 
-void Gravity(int y) {
-	//if (Coll) return 0;
-	if (y >= SCREEN_HEIGHT - 37)  y = SCREEN_HEIGHT - 37;
-	else if (y < SCREEN_HEIGHT - 37) y++;
-}
-
 
 int main() {
 
@@ -70,14 +64,16 @@ int main() {
 
 	
 	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2});
+	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
+	camera.setPosition(player.getPosition());
 
-		//Load tilemap.
-		auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 137, 44);
+	//Load tilemap.
+	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 137, 44);
 	grassTiles = TileMap(grass_sprites, 30, 30);
 
 	for (int i = 0; i < 30; ++i) {
 		for (int j = 0; j < 30; ++j) {
-			grassTiles(i, j) = (i + j) % grass_sprites->getNumSprites();
+			grassTiles(i, j) = (i * grass_sprites->getNumColumns() + j) % grass_sprites->getNumSprites();
 		}
 	}
 
@@ -155,7 +151,7 @@ int main() {
 
 		grassTiles.draw(image, camera);
 
-		player.draw(image);
+		player.draw(image, camera);
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 

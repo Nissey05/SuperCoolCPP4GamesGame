@@ -24,7 +24,7 @@ public:
 
 	void update(float deltaTime);
 
-	void draw(Graphics::Image& image);
+	void draw(Graphics::Image& image, const glm::mat3& transform);
 
 	void setPosition(const glm::vec2& pos);
 	const glm::vec2& getPosition() const;
@@ -33,15 +33,14 @@ public:
 
 	const Math::AABB getAABB() const;
 
-	void doIdle(float deltaTime);
-
-	void doRunning(float deltaTime);
-
-	void doMovement(float deltaTime);
 
 
 private:
 	void setState(State newState);
+
+	void doIdle(float deltaTime);
+	void doRunning(float deltaTime);
+	void doMovement(float deltaTime);
 
 	State state = State::None;
 	glm::vec2 position{ 0 };

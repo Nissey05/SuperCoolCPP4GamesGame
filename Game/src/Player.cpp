@@ -23,8 +23,8 @@ static std::map < Player::State, std::string> g_stateMap = {
 Player::Player() = default;
 
 Player::Player(const glm::vec2& pos)
-	: position{ pos }
-	, aabb{ {8, 17, 0}, {23, 37, 0} }
+	: Entity{pos, { {8, 17, 0}, {23, 37, 0} } }
+	
 
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44, 0, 0, BlendMode::AlphaBlend);
@@ -111,22 +111,6 @@ void Player::draw(Graphics::Image& image, const glm::mat3& transform) {
 #endif
 }
 
-void Player::setPosition(const glm::vec2& pos) {
-	position = pos;
-}
-
-const glm::vec2& Player::getPosition() const {
-	return position;
-}
-
-void Player::translate(const glm::vec2& t) {
-	position += t;
-}
-
-const Math::AABB Player::getAABB() const {
-	return aabb + glm::vec3{ position, 0 };
-}
-
 void Player::setState(State newState) {
 	if (newState != state) {
 		switch (newState) {
@@ -143,13 +127,22 @@ void Player::doMovement(float deltaTime) {
 	auto initialPos = position;
 
 	if (Input::getButton("Sprint")) {
-			position.x += Input::getAxis("Horizontal") * runspeed * deltaTime;		
+		position.x += Input::getAxis("Horizontal") * runspeed * deltaTime;
 	}
 	else {
 		position.x += Input::getAxis("Horizontal") * speed * deltaTime;
 	}
 
 	velocity = (position - initialPos) / deltaTime;
+
+
+
+	if (Input::getButton("Jump")) {
+		position.y--;
+		Jumping = true;
+	}
+
+	Gravity();
 }
 
 
@@ -172,3 +165,15 @@ void Player::doRunning(float deltaTime) {
 
 	runAnim.update(deltaTime);
 }
+
+void Player::Gravity(bool coll) {
+	if (coll == false && position.y < 600 - 44 && Jumping == false) {
+		position.y++;
+		Jumping = false;
+	}
+	else if (position.y > 600 - 44) {
+		position.y = 600 - 44;
+
+	}
+}
+

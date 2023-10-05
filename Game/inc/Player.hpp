@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Entity.hpp"
 
 #include <Graphics/SpriteAnim.hpp>
 #include <Math/AABB.hpp>
 #include <glm/vec2.hpp>
 
 
-class Player {
+class Player : public Entity{
 public:
 	enum class State
 	{
@@ -22,27 +23,21 @@ public:
 
 	explicit Player(const glm::vec2& pos);
 
-	void update(float deltaTime);
+	virtual void update(float deltaTime) override;
 
-	void draw(Graphics::Image& image, const glm::mat3& transform);
+	virtual void draw(Graphics::Image& image, const glm::mat3& transform) override; 
 
-	void setPosition(const glm::vec2& pos);
-	const glm::vec2& getPosition() const;
-
-	void translate(const glm::vec2& t);
-
-	const Math::AABB getAABB() const;
-
+	void Gravity(bool coll = false);
 
 
 private:
+
 	void setState(State newState);
 
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
 	void doMovement(float deltaTime);
-
-	State state = State::None;
+	
 	glm::vec2 position{ 0 };
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
@@ -50,4 +45,10 @@ private:
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Math::AABB aabb;
+
+	
+	State state = State::None;
+	
+	bool Collision = false;
+	bool Jumping = false;
 };

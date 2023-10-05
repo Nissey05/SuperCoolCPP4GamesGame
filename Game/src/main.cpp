@@ -68,7 +68,7 @@ int main() {
 	camera.setPosition(player.getPosition());
 
 	//Load tilemap.
-	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 137, 44);
+	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 16, 16);
 	grassTiles = TileMap(grass_sprites, 30, 30);
 
 	for (int i = 0; i < 30; ++i) {

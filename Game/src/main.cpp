@@ -71,7 +71,7 @@ int main() {
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition(player.getPosition());
 
-	auto groundback = ResourceManager::loadImage("assets/Pinky/backgroundy.png");
+	auto groundback = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
 	background = Sprite( groundback );
 
 

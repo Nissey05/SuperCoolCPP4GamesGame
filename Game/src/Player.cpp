@@ -22,12 +22,13 @@ static std::map < Player::State, std::string> g_stateMap = {
 
 Player::Player() = default;
 
-Player::Player(const glm::vec2& pos)
-	: Entity{pos, { {8, 17, 0}, {23, 37, 0} } }
+Player::Player(const glm::vec2& pos, Sprite* Backside)
+	: Entity{pos, { {0, 0, 0}, {32, 32, 0} } }, 
+	Backside(Backside)
 	
 
 {
-	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Idle.png", 137, 44, 0, 0, BlendMode::AlphaBlend);
+	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/Pinky.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
 	auto runSprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Run.png", 137, 44, 0, 0, BlendMode::AlphaBlend);
 	runAnim = SpriteAnim{ runSprites, 6 };
@@ -86,28 +87,23 @@ void Player::update(float deltaTime) {
 
 }
 
-void Player::draw(Graphics::Image& image, const glm::mat3& transform) {
-	glm::mat3 t = {
-		1, 0, 0,
-		0, 1, 0,
-		position.x, position.y, 1
-	};
-
-	t = transform * t;
+void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
+	
 
 	switch (state)
 	{
 	case State::Idle:
-		image.drawSprite(idleAnim, position.x, position.y);
+		image.drawSprite(idleAnim, camera * transform);
 		break;
 	case State::Running:
-		image.drawSprite(runAnim, position.x, position.y);
+		image.drawSprite(runAnim, camera * transform);
 		break;
 	}
 	
 #if _DEBUG
-	image.drawAABB(getAABB(), Color::Yellow, {}, FillMode::WireFrame);
-	image.drawText(Font::Default, g_stateMap[state], position.x, position.y, Color::White);
+	image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
+	auto pos = camera * transform;
+	image.drawText(Font::Default, g_stateMap[state], pos[2][0], pos[2][1] - 15, Color::White);
 #endif
 }
 
@@ -124,25 +120,35 @@ void Player::setState(State newState) {
 }
 
 void Player::doMovement(float deltaTime) {
-	auto initialPos = position;
+	auto initialPos = transform.getPosition();
+	auto newPos = initialPos;
 
 	if (Input::getButton("Sprint")) {
-		position.x += Input::getAxis("Horizontal") * runspeed * deltaTime;
+		newPos.x += Input::getAxis("Horizontal") * runspeed * deltaTime;
+		newPos.y -= Input::getAxis("Vertical") * runspeed * deltaTime;
 	}
 	else {
-		position.x += Input::getAxis("Horizontal") * speed * deltaTime;
+		newPos.x += Input::getAxis("Horizontal") * speed * deltaTime;
+		newPos.y -= Input::getAxis("Vertical") * speed * deltaTime;
 	}
 
-	velocity = (position - initialPos) / deltaTime;
+	velocity = (newPos - initialPos) / deltaTime;
 
-
+	
 
 	if (Input::getButton("Jump")) {
-		position.y--;
+		newPos.y--;
 		Jumping = true;
 	}
+	else{
+		Jumping = false;
+	}
 
-	Gravity();
+	Gravity(newPos);
+
+
+	transform.setPosition(newPos);
+	position = newPos;
 }
 
 
@@ -166,14 +172,14 @@ void Player::doRunning(float deltaTime) {
 	runAnim.update(deltaTime);
 }
 
-void Player::Gravity(bool coll) {
-	if (coll == false && position.y < 600 - 44 && Jumping == false) {
-		position.y++;
-		Jumping = false;
+void Player::Gravity(glm::vec2& newPos, bool coll) {
+	if (coll == false && newPos.y < Backside->getHeight() - 32 && Jumping == false) {
+		newPos.y++;
+		
 	}
-	else if (position.y > 600 - 44) {
-		position.y = 600 - 44;
-
+	else if (newPos.y > Backside->getHeight() - 32) {
+		newPos.y = Backside->getHeight() - 32;
+		
 	}
 }
 

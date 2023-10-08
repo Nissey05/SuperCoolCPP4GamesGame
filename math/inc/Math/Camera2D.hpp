@@ -70,6 +70,40 @@ namespace Math
         }
 
         /// <summary>
+   /// Get the X-coordinate of the left edge of the camera's viewable area.
+   /// </summary>
+        float getLeftEdge() const noexcept
+        {
+            return m_Position.x - m_Size.x / 2.0f;
+        }
+
+        /// <summary>
+        /// Get the X-coordinate of the right edge of the camera's viewable area.
+        /// </summary>
+        float getRightEdge() const noexcept
+        {
+            return m_Position.x + m_Size.x / 2.0f;
+        }
+
+        /// <summary>
+        /// Get the Y-coordinate of the top edge of the camera's viewable area.
+        /// </summary>
+        /// <returns></returns>
+        float getTopEdge() const noexcept
+        {
+            return m_Position.y - m_Size.y / 2.0f;
+        }
+
+        /// <summary>
+        /// Get the Y-coordinate of the bottom edge of the camera's viewable area.
+        /// </summary>
+        /// <returns></returns>
+        float getBottomEdge() const noexcept
+        {
+            return m_Position.y + m_Size.y / 2.0f;
+        }
+
+        /// <summary>
         /// Set the center position of the camera.
         /// </summary>
         /// <param name="pos">The center position of the camera in 2D screen space.</param>

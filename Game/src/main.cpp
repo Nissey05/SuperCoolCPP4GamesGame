@@ -22,7 +22,7 @@ using namespace Math;
 Window window;
 Image image;
 TileMap grassTiles;
-Player player;
+Sprite background;
 Camera2D camera;
 
 
@@ -31,10 +31,14 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 int CHAR_START_POS = SCREEN_WIDTH / 4 - 26;
 
+Player player;
+
 float Player_speed = 60.f;
 
 void InitGame() {
 	player.setPosition({ CHAR_START_POS, SCREEN_HEIGHT / 2 - 32 });
+	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
+	camera.setPosition(player.getPosition());
 }
 
 
@@ -63,9 +67,13 @@ int main() {
 	window.show();
 
 	
-	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2});
+	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &background);
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition(player.getPosition());
+
+	auto groundback = ResourceManager::loadImage("assets/Pinky/backgroundy.png");
+	background = Sprite( groundback );
+
 
 	//Load tilemap.
 	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 16, 16);
@@ -102,7 +110,7 @@ int main() {
 		player.update(timer.elapsedSeconds());
 		//collisions
 
-		{
+		/*{
 			auto aabb = player.getAABB();
 			glm::vec2 correction{ 0 };
 			if (aabb.min.x < 0) {
@@ -120,8 +128,29 @@ int main() {
 
 
 			player.translate(correction);
+		}*/
+		camera.setPosition(player.getPosition() + glm::vec2(16, 16));
+
+		glm::vec2 cameraCorrection{ 0 };
+		if (camera.getLeftEdge() < 0)
+		{
+			cameraCorrection.x = -camera.getLeftEdge();
 		}
-		camera.setPosition(player.getPosition());
+		else if (camera.getRightEdge() > static_cast<float>(background.getWidth()))
+		{
+			cameraCorrection.x = std::floor(static_cast<float>(background.getWidth()) - camera.getRightEdge());
+		}
+
+		if (camera.getTopEdge() < 0)
+		{
+			cameraCorrection.y = -camera.getTopEdge();
+		}
+		else if (camera.getBottomEdge() > static_cast<float>(background.getHeight()))
+		{
+			cameraCorrection.y = std::floor(static_cast<float>(background.getHeight()) - camera.getBottomEdge());
+		}
+
+		camera.translate(cameraCorrection);
 		
 
 		
@@ -135,7 +164,7 @@ int main() {
 
 
 		//Render loop
-		image.clear(Color::Cyan);
+		image.clear(Color::Black);
 
 		/*if (pos.x <= SCREEN_WIDTH / 2 - 26 + 1) {
 			grassTiles.draw(image, 0, 0);
@@ -149,7 +178,9 @@ int main() {
 
 
 
-		grassTiles.draw(image, camera);
+		//grassTiles.draw(image, camera);
+
+		image.drawSprite(background, camera);
 
 		player.draw(image, camera);
 

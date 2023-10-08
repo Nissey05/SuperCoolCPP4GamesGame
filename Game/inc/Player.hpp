@@ -2,6 +2,7 @@
 
 #include "Entity.hpp"
 
+
 #include <Graphics/SpriteAnim.hpp>
 #include <Math/AABB.hpp>
 #include <glm/vec2.hpp>
@@ -21,13 +22,13 @@ public:
 	//Default constructor
 	Player();
 
-	explicit Player(const glm::vec2& pos);
+	explicit Player(const glm::vec2& pos, Graphics::Sprite* Backside);
 
 	virtual void update(float deltaTime) override;
 
-	virtual void draw(Graphics::Image& image, const glm::mat3& transform) override; 
+	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override; 
 
-	void Gravity(bool coll = false);
+	void Gravity(glm::vec2& newPos, bool coll = false);
 
 
 private:
@@ -46,7 +47,8 @@ private:
 	Graphics::SpriteAnim runAnim;
 	Math::AABB aabb;
 
-	
+	Graphics::Sprite* Backside;
+
 	State state = State::None;
 	
 	bool Collision = false;

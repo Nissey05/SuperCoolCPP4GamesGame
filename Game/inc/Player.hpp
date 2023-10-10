@@ -39,7 +39,6 @@ private:
 	void doRunning(float deltaTime);
 	void doMovement(float deltaTime);
 	
-	glm::vec2 position{ 0 };
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
 	float runspeed{ 2.0f * speed };

@@ -148,7 +148,6 @@ void Player::doMovement(float deltaTime) {
 
 
 	transform.setPosition(newPos);
-	position = newPos;
 }
 
 

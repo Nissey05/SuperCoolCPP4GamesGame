@@ -22,6 +22,8 @@ public:
 
 	virtual bool collides(const Entity& entity) const;
 
+	virtual void Gravity(glm::vec2& newPos, float deltaTime, bool coll = false);
+
 	
 
 protected:
@@ -32,6 +34,7 @@ protected:
 
 	Math::AABB aabb;
 	Math::Transform2D transform;
+
 
 	
 };

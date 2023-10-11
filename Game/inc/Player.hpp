@@ -17,7 +17,7 @@ public:
 		Running,
 		Attack,
 		Dead,
-		Jumping
+		Jumping,
 	};
 	//Default constructor
 	Player();
@@ -28,7 +28,7 @@ public:
 
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override; 
 
-	void Gravity(glm::vec2& newPos, bool coll = false);
+	virtual void Gravity(glm::vec2& newPos, float deltaTime, bool coll = false) override;
 
 
 private:
@@ -41,7 +41,6 @@ private:
 	
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
-	float runspeed{ 2.0f * speed };
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Math::AABB aabb;

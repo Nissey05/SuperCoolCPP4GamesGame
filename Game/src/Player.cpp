@@ -17,6 +17,7 @@ static std::map < Player::State, std::string> g_stateMap = {
 	{Player::State::Running, "Running" },
 	{Player::State::Attack, "Attack" },
 	{Player::State::Dead, "Dead" },
+	{Player::State::Jumping, "Jumping" },
 
 };
 
@@ -124,12 +125,12 @@ void Player::doMovement(float deltaTime) {
 	auto newPos = initialPos;
 
 	if (Input::getButton("Sprint")) {
-		newPos.x += Input::getAxis("Horizontal") * runspeed * deltaTime;
-		newPos.y -= Input::getAxis("Vertical") * runspeed * deltaTime;
+		newPos.x += Input::getAxis("Horizontal") * speed * 2.0f * deltaTime;
+
 	}
 	else {
 		newPos.x += Input::getAxis("Horizontal") * speed * deltaTime;
-		newPos.y -= Input::getAxis("Vertical") * speed * deltaTime;
+
 	}
 
 	velocity = (newPos - initialPos) / deltaTime;
@@ -137,14 +138,14 @@ void Player::doMovement(float deltaTime) {
 	
 
 	if (Input::getButton("Jump")) {
-		newPos.y--;
+		newPos.y -= 200.0f * deltaTime;
 		Jumping = true;
 	}
 	else{
 		Jumping = false;
 	}
 
-	Gravity(newPos);
+	Gravity(newPos, deltaTime);
 
 
 	transform.setPosition(newPos);
@@ -171,9 +172,9 @@ void Player::doRunning(float deltaTime) {
 	runAnim.update(deltaTime);
 }
 
-void Player::Gravity(glm::vec2& newPos, bool coll) {
+void Player::Gravity(glm::vec2& newPos, float deltaTime, bool coll) {
 	if (coll == false && newPos.y < Backside->getHeight() - 32 && Jumping == false) {
-		newPos.y++;
+		newPos.y += 200.0f * deltaTime;
 		
 	}
 	else if (newPos.y > Backside->getHeight() - 32) {

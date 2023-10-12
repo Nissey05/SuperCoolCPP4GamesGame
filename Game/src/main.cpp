@@ -95,6 +95,9 @@ int main() {
 
 	while (window) {
 
+
+		timer.tick();
+
 		// Update loop
 		Input::update();
 		
@@ -110,7 +113,7 @@ int main() {
 		player.update(timer.elapsedSeconds());
 		//collisions
 
-		/*{
+		
 			auto aabb = player.getAABB();
 			glm::vec2 correction{ 0 };
 			if (aabb.min.x < 0) {
@@ -128,7 +131,7 @@ int main() {
 
 
 			player.translate(correction);
-		}*/
+		
 		camera.setPosition(player.getPosition() + glm::vec2(16, 16));
 
 		glm::vec2 cameraCorrection{ 0 };
@@ -213,7 +216,7 @@ int main() {
 		}
 
 
-		timer.tick();
+		
 		++frameCount;
 
 		totalTime += timer.elapsedSeconds();

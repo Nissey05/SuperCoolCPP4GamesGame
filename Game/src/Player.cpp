@@ -4,6 +4,7 @@
 #include <Graphics/ResourceManager.hpp>
 #include <Graphics/Font.hpp>
 #include <Math/Camera2D.hpp>
+#include <Graphics/Window.hpp>
 
 
 #include <map>
@@ -97,7 +98,7 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		image.drawSprite(idleAnim, camera * transform);
 		break;
 	case State::Running:
-		image.drawSprite(runAnim, camera * transform);
+			image.drawSprite(runAnim, camera * transform);
 		break;
 	}
 	
@@ -115,7 +116,11 @@ void Player::setState(State newState) {
 			break;
 		case State::Running:
 			break;
+		case State::Jumping:
+			velocity.y -= jumpSpeed;
+			break;
 		}
+		
 		state = newState;
 	}
 }
@@ -135,20 +140,16 @@ void Player::doMovement(float deltaTime) {
 
 	velocity = (newPos - initialPos) / deltaTime;
 
+
+	Gravity(deltaTime);
+
 	
 
-	if (Input::getButton("Jump")) {
-		newPos.y -= 200.0f * deltaTime;
-		Jumping = true;
-	}
-	else{
-		Jumping = false;
-	}
+	initialPos += velocity * deltaTime;
 
-	Gravity(newPos, deltaTime);
+	CheckBounds(initialPos);
 
-
-	transform.setPosition(newPos);
+	transform.setPosition(initialPos);
 }
 
 
@@ -156,7 +157,11 @@ void Player::doIdle(float deltaTime) {
 	doMovement(deltaTime);
 
 	if (glm::length(velocity) > 0) {
-		setState(State::Idle);
+		setState(State::Running);
+	}
+
+	if (Input::getButton("Jump")) {
+		setState(State::Jumping);
 	}
 
 	idleAnim.update(deltaTime);
@@ -166,20 +171,28 @@ void Player::doRunning(float deltaTime) {
 	doMovement(deltaTime);
 
 	if (glm::length(velocity) == 0.0f) {
-		setState(State::Running);
+		setState(State::Idle);
+	}
+
+	if (Input::getButton("Jump")) {
+		setState(State::Jumping);
 	}
 
 	runAnim.update(deltaTime);
 }
 
-void Player::Gravity(glm::vec2& newPos, float deltaTime, bool coll) {
-	if (coll == false && newPos.y < Backside->getHeight() - 32 && Jumping == false) {
-		newPos.y += 200.0f * deltaTime;
-		
-	}
-	else if (newPos.y > Backside->getHeight() - 32) {
-		newPos.y = Backside->getHeight() - 32;
-		
-	}
+void Player::doJump(float deltaTime) {
+	doMovement(deltaTime);
 }
 
+
+void Player::Gravity(float deltaTime) {
+	velocity.y += gravity * deltaTime * 10;
+}
+
+void Player::CheckBounds(glm::vec2 pos) {
+	if (pos.y < 0) pos.y = 0;
+	else if (pos.x < 0) pos.x = 0;
+	else if (pos.y > 600) pos.y = 600 - 32;
+	else if (pos.x > 800) pos.x = 800 - 32;
+}

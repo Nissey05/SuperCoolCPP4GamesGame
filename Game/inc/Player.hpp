@@ -28,7 +28,9 @@ public:
 
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override; 
 
-	virtual void Gravity(glm::vec2& newPos, float deltaTime, bool coll = false) override;
+	virtual void Gravity(float deltaTime) override;
+
+	void CheckBounds(glm::vec2 pos);
 
 
 private:
@@ -38,6 +40,7 @@ private:
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
 	void doMovement(float deltaTime);
+	void doJump(float deltaTime);
 	
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
@@ -50,5 +53,9 @@ private:
 	State state = State::None;
 	
 	bool Collision = false;
-	bool Jumping = false;
+
+	static inline const float maxJumpHeight = 50.0f;
+	static inline const float jumpTime = 0.5f;
+	static inline const float gravity = 2.0f * maxJumpHeight / (jumpTime * jumpTime);
+	static inline const float jumpSpeed = -std::sqrt(2.0f * maxJumpHeight * gravity);
 };

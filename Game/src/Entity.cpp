@@ -28,15 +28,8 @@ bool Entity::collides(const Entity& entity) const {
 	return getAABB().intersect(entity.getAABB());
 }
 
-void Entity::Gravity(glm::vec2& newPos, float deltaTime, bool coll) {
-	if (newPos.y < 600 - 32 && coll == false) {
-		newPos.y += 200.0f * deltaTime;
-
-	}
-	else if (newPos.y > 600 - 32) {
-		newPos.y = 600 - 32;
-
-	}
+void Entity::Gravity(float deltaTime) {
+	
 }
 
 

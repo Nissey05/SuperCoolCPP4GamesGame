@@ -114,23 +114,24 @@ int main() {
 		//collisions
 
 		
-			auto aabb = player.getAABB();
-			glm::vec2 correction{ 0 };
-			if (aabb.min.x < 0) {
-				correction.x = -aabb.min.x;
-			}
-			if (aabb.min.y < 0) {
-				correction.y = -aabb.min.y;
-			}
-			if (aabb.max.x >= image.getWidth()) {
-				correction.x = image.getWidth() - aabb.max.x;
-			}
-			if (aabb.max.y >= image.getHeight()) {
-				correction.y = image.getHeight() - aabb.max.y;
-			}
+		/*auto aabb = player.getAABB();
+		glm::vec2 correction{ 0 };
+		if (aabb.min.x < 0) {
+			correction.x = -aabb.min.x;
+		}
+		if (aabb.min.y < 0) {
+			correction.y = -aabb.min.y;
+		}
+		if (aabb.max.x >= image.getWidth()) {
+			correction.x = image.getWidth() - aabb.max.x;
+		}
+		if (aabb.max.y >= image.getHeight()) {
+			correction.y = image.getHeight() - aabb.max.y;
+			
+		}*/
 
 
-			player.translate(correction);
+		//player.translate(correction);
 		
 		camera.setPosition(player.getPosition() + glm::vec2(16, 16));
 

@@ -19,6 +19,7 @@ static std::map < Player::State, std::string> g_stateMap = {
 	{Player::State::Attack, "Attack" },
 	{Player::State::Dead, "Dead" },
 	{Player::State::Jumping, "Jumping" },
+	{Player::State::Falling, "Falling" },
 
 };
 
@@ -85,8 +86,14 @@ void Player::update(float deltaTime) {
 	case State::Running:
 		doRunning(deltaTime);
 		break;
+	case State::Jumping:
+		doJump(deltaTime);
+		break;
+	case State::Falling:
+		doFalling(deltaTime);
+		break;
 	}
-
+	
 }
 
 void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
@@ -98,7 +105,13 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		image.drawSprite(idleAnim, camera * transform);
 		break;
 	case State::Running:
-			image.drawSprite(runAnim, camera * transform);
+		image.drawSprite(runAnim, camera * transform);
+		break;
+	case State::Jumping:
+		image.drawSprite(idleAnim, camera * transform);
+		break;
+	case State::Falling:
+		image.drawSprite(idleAnim, camera * transform);
 		break;
 	}
 	
@@ -117,7 +130,8 @@ void Player::setState(State newState) {
 		case State::Running:
 			break;
 		case State::Jumping:
-			velocity.y -= jumpSpeed;
+			break;
+		case State::Falling:
 			break;
 		}
 		
@@ -128,39 +142,49 @@ void Player::setState(State newState) {
 void Player::doMovement(float deltaTime) {
 	auto initialPos = transform.getPosition();
 	auto newPos = initialPos;
-
-	if (Input::getButton("Sprint")) {
-		newPos.x += Input::getAxis("Horizontal") * speed * 2.0f * deltaTime;
-
+	
+	auto horizontalMove = Input::getAxis("Horizontal");
+	if (glm::abs(horizontalMove) > 0.f) {
+		if (Input::getButton("Sprint")) {
+			velocity.x += horizontalMove * speed * 2.0f * deltaTime;
+		}
+		else {
+			velocity.x += horizontalMove * speed * deltaTime;
+		}
 	}
 	else {
-		newPos.x += Input::getAxis("Horizontal") * speed * deltaTime;
-
+		velocity.x *= 0.8f;
+		if (velocity.x < 20.f) velocity.x = 0;
 	}
-
-	velocity = (newPos - initialPos) / deltaTime;
-
 
 	Gravity(deltaTime);
 
+	velocity.x = glm::clamp(velocity.x, -200.f, 200.f);
+	velocity.y = glm::clamp(velocity.y, jumpSpeed, -jumpSpeed);
 	
+	newPos += velocity * deltaTime;
 
-	initialPos += velocity * deltaTime;
+	CheckBounds(newPos);
 
-	CheckBounds(initialPos);
+	deltaPos = newPos - initialPos;
 
-	transform.setPosition(initialPos);
+	transform.setPosition(newPos);
+}
+
+void Player::doMove(float deltaTime) {
+	
 }
 
 
 void Player::doIdle(float deltaTime) {
 	doMovement(deltaTime);
 
-	if (glm::length(velocity) > 0) {
+	if (glm::abs(velocity.x) > 0) {
 		setState(State::Running);
 	}
 
 	if (Input::getButton("Jump")) {
+		velocity.y = jumpSpeed;
 		setState(State::Jumping);
 	}
 
@@ -170,11 +194,12 @@ void Player::doIdle(float deltaTime) {
 void Player::doRunning(float deltaTime) {
 	doMovement(deltaTime);
 
-	if (glm::length(velocity) == 0.0f) {
+	if (glm::abs(velocity.x) == 0.0f) {
 		setState(State::Idle);
 	}
 
 	if (Input::getButton("Jump")) {
+		velocity.y = jumpSpeed;
 		setState(State::Jumping);
 	}
 
@@ -183,16 +208,41 @@ void Player::doRunning(float deltaTime) {
 
 void Player::doJump(float deltaTime) {
 	doMovement(deltaTime);
+	if (velocity.y > 0.0f) setState(State::Falling);
+	idleAnim.update(deltaTime);
 }
 
+void Player::doFalling(float deltaTime) {
+	doMovement(deltaTime);
+	if (deltaPos.y < 1.0f) setState(State::Idle);
+	idleAnim.update(deltaTime);
+}
 
 void Player::Gravity(float deltaTime) {
-	velocity.y += gravity * deltaTime * 10;
+	velocity.y += gravity * deltaTime;
 }
 
-void Player::CheckBounds(glm::vec2 pos) {
-	if (pos.y < 0) pos.y = 0;
-	else if (pos.x < 0) pos.x = 0;
-	else if (pos.y > 600) pos.y = 600 - 32;
-	else if (pos.x > 800) pos.x = 800 - 32;
+void Player::CheckBounds(glm::vec2& pos) {
+	if (pos.y < 0) pos.y = 0, velocity.y = 0.f;
+	else if (pos.x < 0) pos.x = 0, velocity.x = 0.f;
+	else if (pos.y > Backside->getHeight() - 32) pos.y = Backside->getHeight() - 32, velocity.y = 0.f;
+	else if (pos.x > Backside->getWidth() - 32) pos.x = Backside->getWidth() - 32, velocity.y = 0.f;
+
+	/*auto aabb = getAABB();
+	glm::vec2 correction{ 0 };
+	if (aabb.min.x < 0) {
+		correction.x = -aabb.min.x;
+	}
+	if (aabb.min.y < 0) {
+		correction.y = -aabb.min.y;
+	}
+	if (aabb.max.x >= Backside->getWidth()) {
+		correction.x = Backside->getWidth() - aabb.max.x;
+	}
+	if (aabb.max.y >= Backside->getHeight()) {
+		correction.y = Backside->getHeight() - aabb.max.y;
+
+	}
+
+	translate(correction);*/
 }

@@ -18,6 +18,7 @@ public:
 		Attack,
 		Dead,
 		Jumping,
+		Falling,
 	};
 	//Default constructor
 	Player();
@@ -30,7 +31,7 @@ public:
 
 	virtual void Gravity(float deltaTime) override;
 
-	void CheckBounds(glm::vec2 pos);
+	void CheckBounds(glm::vec2& pos);
 
 
 private:
@@ -40,10 +41,14 @@ private:
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
 	void doMovement(float deltaTime);
+	void doMove(float deltaTime);
 	void doJump(float deltaTime);
+
+	void doFalling(float deltaTime);
 	
 	glm::vec2 velocity{ 0 };
-	float speed{ 60.0f };
+	glm::vec2 deltaPos{ 0 };
+	float speed{ 120.0f };
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Math::AABB aabb;
@@ -54,7 +59,9 @@ private:
 	
 	bool Collision = false;
 
-	static inline const float maxJumpHeight = 50.0f;
+	float acceleration = 0;
+
+	static inline const float maxJumpHeight = 250.0f;
 	static inline const float jumpTime = 0.5f;
 	static inline const float gravity = 2.0f * maxJumpHeight / (jumpTime * jumpTime);
 	static inline const float jumpSpeed = -std::sqrt(2.0f * maxJumpHeight * gravity);

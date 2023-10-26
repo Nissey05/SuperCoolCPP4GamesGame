@@ -11,11 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Background.cpp" />
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\Background.hpp" />
     <ClInclude Include="inc\Entity.hpp" />
     <ClInclude Include="inc\Player.hpp" />
   </ItemGroup>

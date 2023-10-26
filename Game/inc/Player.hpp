@@ -47,6 +47,7 @@ private:
 	void doFalling(float deltaTime);
 	
 	glm::vec2 velocity{ 0 };
+	glm::vec2 acceleration{ 0 };
 	glm::vec2 deltaPos{ 0 };
 	float speed{ 120.0f };
 	Graphics::SpriteAnim idleAnim;
@@ -59,7 +60,6 @@ private:
 	
 	bool Collision = false;
 
-	float acceleration = 0;
 
 	static inline const float maxJumpHeight = 250.0f;
 	static inline const float jumpTime = 0.5f;

@@ -145,19 +145,25 @@ void Player::doMovement(float deltaTime) {
 	
 	auto horizontalMove = Input::getAxis("Horizontal");
 	if (glm::abs(horizontalMove) > 0.f) {
-		if (Input::getButton("Sprint")) {
-			velocity.x += horizontalMove * speed * 2.0f * deltaTime;
+
+		acceleration.x += Input::getButton("Sprint") ? horizontalMove * speed * 2.0f * deltaTime : horizontalMove * speed * deltaTime;
+
+		/*if (Input::getButton("Sprint")) {
+			acceleration.x += horizontalMove * speed * 2.0f * deltaTime;
 		}
 		else {
-			velocity.x += horizontalMove * speed * deltaTime;
-		}
+			acceleration.x += horizontalMove * speed * deltaTime;
+		}*/
 	}
 	else {
 		velocity.x *= 0.8f;
-		if (velocity.x < 20.f) velocity.x = 0;
+		acceleration *= 0.6f;
+		if (glm::abs(velocity.x) < 20.f) velocity.x = 0, acceleration.x = 0;
 	}
 
 	Gravity(deltaTime);
+
+	velocity += acceleration * deltaTime;
 
 	velocity.x = glm::clamp(velocity.x, -200.f, 200.f);
 	velocity.y = glm::clamp(velocity.y, jumpSpeed, -jumpSpeed);
@@ -224,9 +230,9 @@ void Player::Gravity(float deltaTime) {
 
 void Player::CheckBounds(glm::vec2& pos) {
 	if (pos.y < 0) pos.y = 0, velocity.y = 0.f;
-	else if (pos.x < 0) pos.x = 0, velocity.x = 0.f;
-	else if (pos.y > Backside->getHeight() - 32) pos.y = Backside->getHeight() - 32, velocity.y = 0.f;
-	else if (pos.x > Backside->getWidth() - 32) pos.x = Backside->getWidth() - 32, velocity.y = 0.f;
+	if (pos.x < 0) pos.x = 0, velocity.x = 0.f;
+	if (pos.y > Backside->getHeight() - 32) pos.y = Backside->getHeight() - 32, velocity.y = 0.f;
+	if (pos.x > Backside->getWidth() - 32) pos.x = Backside->getWidth() - 32, velocity.y = 0.f;
 
 	/*auto aabb = getAABB();
 	glm::vec2 correction{ 0 };

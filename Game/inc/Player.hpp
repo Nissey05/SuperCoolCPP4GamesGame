@@ -50,6 +50,8 @@ private:
 	glm::vec2 acceleration{ 0 };
 	glm::vec2 deltaPos{ 0 };
 	float speed{ 120.0f };
+	float maxHorizontal{ 200.f };
+	float accelerationMultiplier = 1.0f;
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Math::AABB aabb;

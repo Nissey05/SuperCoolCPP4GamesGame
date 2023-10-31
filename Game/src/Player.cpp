@@ -6,7 +6,7 @@
 #include <Math/Camera2D.hpp>
 #include <Graphics/Window.hpp>
 
-
+#include <iostream>
 #include <map>
 #include <string>
 	
@@ -35,48 +35,10 @@ Player::Player(const glm::vec2& pos, Sprite* Backside)
 	idleAnim = SpriteAnim{ idleSprites, 6 };
 	auto runSprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Run.png", 137, 44, 0, 0, BlendMode::AlphaBlend);
 	runAnim = SpriteAnim{ runSprites, 6 };
-	setState(State::Idle);
+	setState(State::Falling);
+
+	transform.setAnchor({ 16, 32 });
 }
-
-//void Player::update(float deltaTime) {
-//	//position.x += Input::getAxis("Horizontal") * speed * deltaTime;
-//	//position.y -= Input::getAxis("Vertical") * speed * deltaTime;
-//
-//	auto initialPos = position;
-//
-//	if (Input::getButton("Sprint")) {
-//		position.x += Input::getAxis("Horizontal") * runspeed * deltaTime;		
-//	}
-//	else {
-//		position.x += Input::getAxis("Horizontal") * speed * deltaTime;
-//	}
-//
-//	velocity = (position - initialPos) / deltaTime;
-//
-//	if (velocity.length() > 0) {
-//		setState(State::Running);
-//	}
-//	else {
-//		setState(State::Idle);
-//	}
-//
-//	if (Input::getButton("Jump")) {
-//		position.y--;
-//	}
-//	else {
-//		if (position.y < 600 - 37) position.y += 180.0f * deltaTime;
-//		else if (position.y >= 600 - 37) position.y = 563;
-//	}
-//
-//	position.y -= Input::getAxis("Jump");
-//
-//	
-//
-//
-//
-//	sprite.update(deltaTime);
-//}
-
 
 void Player::update(float deltaTime) {
 	switch (state) {
@@ -93,7 +55,6 @@ void Player::update(float deltaTime) {
 		doFalling(deltaTime);
 		break;
 	}
-	
 }
 
 void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
@@ -144,37 +105,52 @@ void Player::doMovement(float deltaTime) {
 	auto newPos = initialPos;
 	
 	auto horizontalMove = Input::getAxis("Horizontal");
+	float accelMultiCopy = accelerationMultiplier;
+
+	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy *= 120.f, velocity.x * 0.03f;
+	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy *= 120.f, velocity.x * 0.03f;
+
 	if (glm::abs(horizontalMove) > 0.f) {
-
-		acceleration.x += Input::getButton("Sprint") ? horizontalMove * speed * 2.0f * deltaTime : horizontalMove * speed * deltaTime;
-
-		/*if (Input::getButton("Sprint")) {
-			acceleration.x += horizontalMove * speed * 2.0f * deltaTime;
-		}
-		else {
-			acceleration.x += horizontalMove * speed * deltaTime;
-		}*/
+		const bool isSprinting = Input::getButton("Sprint");
+		maxHorizontal = isSprinting ? 600.f : 200.f;
+		accelMultiCopy *= isSprinting ? 2.0f : 1.0f;
+		acceleration.x += (horizontalMove * speed * accelMultiCopy * deltaTime);
 	}
 	else {
 		velocity.x *= 0.8f;
 		acceleration *= 0.6f;
+		
 		if (glm::abs(velocity.x) < 20.f) velocity.x = 0, acceleration.x = 0;
 	}
 
+	
+
 	Gravity(deltaTime);
+
+
+	acceleration.x = glm::clamp(acceleration.x, -120.f, 120.f);
+	acceleration.y = glm::clamp(acceleration.y, -80.f, 80.f);
+	
 
 	velocity += acceleration * deltaTime;
 
-	velocity.x = glm::clamp(velocity.x, -200.f, 200.f);
+	velocity.x = glm::clamp(velocity.x, -maxHorizontal, maxHorizontal);
 	velocity.y = glm::clamp(velocity.y, jumpSpeed, -jumpSpeed);
 	
 	newPos += velocity * deltaTime;
 
-	CheckBounds(newPos);
+	
+	if(velocity.y >= 0){
+		CheckBounds(newPos);
+	}
+	
+
+	
+	
 
 	deltaPos = newPos - initialPos;
 
-	transform.setPosition(newPos);
+	setPosition(newPos);
 }
 
 void Player::doMove(float deltaTime) {
@@ -188,10 +164,14 @@ void Player::doIdle(float deltaTime) {
 	if (glm::abs(velocity.x) > 0) {
 		setState(State::Running);
 	}
+	if (velocity.y > 0) {
+		setState(State::Falling);
+	}
 
 	if (Input::getButton("Jump")) {
 		velocity.y = jumpSpeed;
 		setState(State::Jumping);
+		
 	}
 
 	idleAnim.update(deltaTime);
@@ -207,20 +187,24 @@ void Player::doRunning(float deltaTime) {
 	if (Input::getButton("Jump")) {
 		velocity.y = jumpSpeed;
 		setState(State::Jumping);
+		
 	}
+
+	if (deltaPos.x > 0) transform.setScale({ 1, 1 });
+	else if (deltaPos.x < 0) transform.setScale({ -1, 1 });
 
 	runAnim.update(deltaTime);
 }
 
 void Player::doJump(float deltaTime) {
 	doMovement(deltaTime);
-	if (velocity.y > 0.0f) setState(State::Falling);
+	if (velocity.y > 0.0f) setState(State::Falling), std::cout << "Falling" << std::endl;
 	idleAnim.update(deltaTime);
 }
 
 void Player::doFalling(float deltaTime) {
 	doMovement(deltaTime);
-	if (deltaPos.y < 1.0f) setState(State::Idle);
+	if (deltaPos.y < 1.0f) setState(State::Idle), std::cout << "Landed" << std::endl;
 	idleAnim.update(deltaTime);
 }
 
@@ -229,12 +213,7 @@ void Player::Gravity(float deltaTime) {
 }
 
 void Player::CheckBounds(glm::vec2& pos) {
-	if (pos.y < 0) pos.y = 0, velocity.y = 0.f;
-	if (pos.x < 0) pos.x = 0, velocity.x = 0.f;
-	if (pos.y > Backside->getHeight() - 32) pos.y = Backside->getHeight() - 32, velocity.y = 0.f;
-	if (pos.x > Backside->getWidth() - 32) pos.x = Backside->getWidth() - 32, velocity.y = 0.f;
-
-	/*auto aabb = getAABB();
+	auto aabb = getAABB();
 	glm::vec2 correction{ 0 };
 	if (aabb.min.x < 0) {
 		correction.x = -aabb.min.x;
@@ -247,8 +226,18 @@ void Player::CheckBounds(glm::vec2& pos) {
 	}
 	if (aabb.max.y >= Backside->getHeight()) {
 		correction.y = Backside->getHeight() - aabb.max.y;
-
 	}
 
-	translate(correction);*/
+	pos += correction;
+
+	if (glm::abs(correction.y) > 0) {
+		velocity.y = 0;
+		acceleration.y = 0;
+	}
+	if (glm::abs(correction.x) > 0) {
+		velocity.x = 0; 
+		acceleration.x = 0;
+	}
+
+	
 }

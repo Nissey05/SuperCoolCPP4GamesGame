@@ -62,8 +62,6 @@ private:
 	
 	bool Collision = false;
 
-	const float referenceDamping = 0.6f;
-	const float referenceFPS = 30.f;
 
 	static inline const float maxJumpHeight = 250.0f;
 	static inline const float jumpTime = 0.5f;

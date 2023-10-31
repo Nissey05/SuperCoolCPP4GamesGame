@@ -60,7 +60,10 @@ private:
 
 	State state = State::None;
 	
-	bool Collision = false;
+
+	float referenceAccelDamping = 0.6f;
+	float referenceVelocDamping = 0.8f;
+	float referenceFPS = 30.f;
 
 
 	static inline const float maxJumpHeight = 250.0f;

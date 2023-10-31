@@ -107,8 +107,8 @@ void Player::doMovement(float deltaTime) {
 	auto horizontalMove = Input::getAxis("Horizontal");
 	float accelMultiCopy = accelerationMultiplier;
 
-	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy *= 120.f, velocity.x * 0.03f;
-	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy *= 120.f, velocity.x * 0.03f;
+	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy *= 60.f, velocity.x *= 0.3f;
+	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy *= 60.f, velocity.x *= 0.3f;
 
 	if (glm::abs(horizontalMove) > 0.f) {
 		const bool isSprinting = Input::getButton("Sprint");
@@ -117,8 +117,10 @@ void Player::doMovement(float deltaTime) {
 		acceleration.x += (horizontalMove * speed * accelMultiCopy * deltaTime);
 	}
 	else {
-		velocity.x *= 0.8f;
-		acceleration *= 0.6f;
+		float scaledAccelDamping = pow(referenceAccelDamping, deltaTime * referenceFPS);
+		float scaledVelocDamping = pow(referenceVelocDamping, deltaTime * referenceFPS);
+		velocity.x *= scaledVelocDamping;
+		acceleration *= scaledAccelDamping;
 		
 		if (glm::abs(velocity.x) < 20.f) velocity.x = 0, acceleration.x = 0;
 	}
@@ -198,13 +200,13 @@ void Player::doRunning(float deltaTime) {
 
 void Player::doJump(float deltaTime) {
 	doMovement(deltaTime);
-	if (velocity.y > 0.0f) setState(State::Falling), std::cout << "Falling" << std::endl;
+	if (velocity.y > 0.0f) setState(State::Falling);
 	idleAnim.update(deltaTime);
 }
 
 void Player::doFalling(float deltaTime) {
 	doMovement(deltaTime);
-	if (deltaPos.y < 1.0f) setState(State::Idle), std::cout << "Landed" << std::endl;
+	if (deltaPos.y < 1.0f) setState(State::Idle);
 	idleAnim.update(deltaTime);
 }
 
@@ -221,11 +223,11 @@ void Player::CheckBounds(glm::vec2& pos) {
 	if (aabb.min.y < 0) {
 		correction.y = -aabb.min.y;
 	}
-	if (aabb.max.x >= Backside->getWidth()) {
-		correction.x = Backside->getWidth() - aabb.max.x;
+	if (aabb.max.x >= Backside->getWidth()-5) {
+		correction.x = Backside->getWidth()-5 - aabb.max.x;
 	}
-	if (aabb.max.y >= Backside->getHeight()) {
-		correction.y = Backside->getHeight() - aabb.max.y;
+	if (aabb.max.y >= Backside->getHeight()-5) {
+		correction.y = Backside->getHeight()-5 - aabb.max.y;
 	}
 
 	pos += correction;

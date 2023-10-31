@@ -107,8 +107,8 @@ void Player::doMovement(float deltaTime) {
 	auto horizontalMove = Input::getAxis("Horizontal");
 	float accelMultiCopy = accelerationMultiplier;
 
-	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy *= 120.f, velocity.x * 0.03f;
-	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy *= 120.f, velocity.x * 0.03f;
+	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy *= 60.f, velocity.x *= 0.03f;
+	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy *= 60.f, velocity.x *= 0.03f;
 
 	if (glm::abs(horizontalMove) > 0.f) {
 		const bool isSprinting = Input::getButton("Sprint");

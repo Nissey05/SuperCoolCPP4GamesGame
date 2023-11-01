@@ -1,4 +1,5 @@
 #include <Player.hpp>
+#include <Background.hpp>
 
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
@@ -22,8 +23,8 @@ using namespace Math;
 Window window;
 Image image;
 TileMap grassTiles;
-Sprite background;
 Camera2D camera;
+Background background;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -61,22 +62,13 @@ int main() {
 	window.create(L"Wowzers", SCREEN_WIDTH, SCREEN_HEIGHT);
 	window.show();
 
+	background = Background();
+
 	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &background);
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition(player.getPosition());
 
-	auto groundback = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
-	background = Sprite( groundback );
-
-	//Load tilemap.
-	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/pixelart/TX Tileset Grass.png", 16, 16);
-	grassTiles = TileMap(grass_sprites, 30, 30);
-
-	for (int i = 0; i < 30; ++i) {
-		for (int j = 0; j < 30; ++j) {
-			grassTiles(i, j) = (i * grass_sprites->getNumColumns() + j) % grass_sprites->getNumSprites();
-		}
-	}
+	
 
 	Timer       timer;
 	double      totalTime = 0.0;
@@ -115,7 +107,7 @@ int main() {
 		//Render loop
 		image.clear(Color::Black);
 
-		image.drawSprite(background, camera);
+		background.draw(image, camera);
 
 		player.draw(image, camera);
 

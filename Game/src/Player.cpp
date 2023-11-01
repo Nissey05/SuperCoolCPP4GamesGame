@@ -20,7 +20,6 @@ static std::map < Player::State, std::string> g_stateMap = {
 	{Player::State::Dead, "Dead" },
 	{Player::State::Jumping, "Jumping" },
 	{Player::State::Falling, "Falling" },
-
 };
 
 Player::Player() = default;
@@ -28,8 +27,6 @@ Player::Player() = default;
 Player::Player(const glm::vec2& pos, Sprite* Backside)
 	: Entity{pos, { {0, 0, 0}, {32, 32, 0} } }, 
 	Backside(Backside)
-	
-
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/Pinky.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
@@ -58,8 +55,6 @@ void Player::update(float deltaTime) {
 }
 
 void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
-	
-
 	switch (state)
 	{
 	case State::Idle:
@@ -75,11 +70,15 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		image.drawSprite(idleAnim, camera * transform);
 		break;
 	}
-	
+
 #if _DEBUG
 	image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
 	auto pos = camera * transform;
 	image.drawText(Font::Default, g_stateMap[state], pos[2][0], pos[2][1] - 15, Color::White);
+	/*auto rectPos = Math::Rect<float>(getPosition().x - 5.f, getPosition().y - 5.f, 10.f, 10.f );
+	image.drawRectangle(camera * rectPos, Color::Black);
+	auto aaPos = Math::Rect<float>(getAABB().max.x - 21.f, getAABB().max.y - 5.f, 10.f, 10.f);
+	image.drawRectangle(camera * aaPos, Color::Black);*/
 #endif
 }
 
@@ -95,7 +94,7 @@ void Player::setState(State newState) {
 		case State::Falling:
 			break;
 		}
-		
+
 		state = newState;
 	}
 }
@@ -125,14 +124,10 @@ void Player::doMovement(float deltaTime) {
 		if (glm::abs(velocity.x) < 20.f) velocity.x = 0, acceleration.x = 0;
 	}
 
-	
-
 	Gravity(deltaTime);
-
 
 	acceleration.x = glm::clamp(acceleration.x, -120.f, 120.f);
 	acceleration.y = glm::clamp(acceleration.y, -80.f, 80.f);
-	
 
 	velocity += acceleration * deltaTime;
 
@@ -141,25 +136,16 @@ void Player::doMovement(float deltaTime) {
 	
 	newPos += velocity * deltaTime;
 
-	
-	if(velocity.y >= 0){
-		CheckBounds(newPos);
-	}
-	
-
-	
-	
-
-	deltaPos = newPos - initialPos;
-
 	setPosition(newPos);
+
+	CheckBounds();
+
+	deltaPos = getPosition() - initialPos;
 }
 
 void Player::doMove(float deltaTime) {
 	
 }
-
-
 void Player::doIdle(float deltaTime) {
 	doMovement(deltaTime);
 
@@ -214,31 +200,35 @@ void Player::Gravity(float deltaTime) {
 	velocity.y += gravity * deltaTime;
 }
 
-void Player::CheckBounds(glm::vec2& pos) {
+void Player::CheckBounds() {
 	auto aabb = getAABB();
-	glm::vec2 correction{ 0 };
-	if (aabb.min.x < 0) {
+	glm::vec2 correction{ 0.f };
+
+	if (aabb.min.x < 0.f) {
 		correction.x = -aabb.min.x;
 	}
-	if (aabb.min.y < 0) {
+	else if (aabb.max.x >= Backside->getWidth()) {
+		correction.x = Backside->getWidth() - aabb.max.x;
+	}
+
+	if (aabb.min.y < 0.f) {
 		correction.y = -aabb.min.y;
 	}
-	if (aabb.max.x >= Backside->getWidth()-5) {
-		correction.x = Backside->getWidth()-5 - aabb.max.x;
-	}
-	if (aabb.max.y >= Backside->getHeight()-5) {
-		correction.y = Backside->getHeight()-5 - aabb.max.y;
+	else if (aabb.max.y >= Backside->getHeight()) {
+		correction.y = Backside->getHeight() - aabb.max.y;
 	}
 
-	pos += correction;
+	translate(correction);
+	
+	if (glm::abs(correction.y) > 0.f) {
+		velocity.y = 0.f;
+		acceleration.y = 0.f;
 
-	if (glm::abs(correction.y) > 0) {
-		velocity.y = 0;
-		acceleration.y = 0;
 	}
-	if (glm::abs(correction.x) > 0) {
-		velocity.x = 0; 
-		acceleration.x = 0;
+	if (glm::abs(correction.x) > 0.f) {
+		velocity.x = 0.f; 
+		acceleration.x = 0.f;
+
 	}
 
 	

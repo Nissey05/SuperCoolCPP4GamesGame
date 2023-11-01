@@ -2,6 +2,6 @@
 
 #include "Entity.hpp"
 
-class Enemy : Public Entity {
+class Enemy : public Entity {
 
 };

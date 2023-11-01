@@ -31,7 +31,7 @@ public:
 
 	virtual void Gravity(float deltaTime) override;
 
-	void CheckBounds(glm::vec2& pos);
+	void CheckBounds();
 
 
 private:

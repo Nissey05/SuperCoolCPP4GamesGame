@@ -246,4 +246,13 @@ namespace Math
         return { glm::vec3 { min.x, min.y, aabb.min.z }, glm::vec3 { max.x, max.y, aabb.max.z } };
     }
 
+    inline Math::Rect<float> operator*(const Camera2D& camera, const Math::Rect<float>& bba) noexcept
+    {
+        const auto& mat = camera.getTransform();
+
+        const auto topLeft = mat * glm::vec3{ bba.left, bba.top, 1.0f };
+
+        return { topLeft.x, topLeft.y, bba.width, bba.height};
+    }
+
 }  // namespace Math

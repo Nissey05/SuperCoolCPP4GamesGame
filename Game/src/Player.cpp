@@ -5,6 +5,7 @@
 #include <Graphics/Font.hpp>
 #include <Math/Camera2D.hpp>
 #include <Graphics/Window.hpp>
+#include <Background.hpp>
 
 #include <iostream>
 #include <map>

@@ -20,20 +20,21 @@ public:
 	//Default Constructor
 	Background();
 
-	explicit Background();
+	explicit Background(int overload);
 
-	float getWidth(Sprite map);
-	float getHeight(Sprite map);
-	Graphics::Sprite getLevelMap(BackgroundState level);
-	BackgroundState getState();
+	int getWidth();
+	int getHeight();
+	Graphics::Sprite& getLevelMap();
+	
 	void setLevelMap(BackgroundState map);
 	void draw(Graphics::Image& image, const Math::Camera2D& camera);
 
-	void update(float deltaTime);
+	void update();
 
 private:
 
 	void setState(BackgroundState newState);
+	BackgroundState getState();
 	
 
 	Graphics::Sprite WorldMap1;
@@ -42,6 +43,6 @@ private:
 	Graphics::Sprite StartScreen;
 	Graphics::Sprite DeathScreen;
 
-	BackgroundState state = BackgroundState::Start;
+	BackgroundState state = BackgroundState::Level1;
 
 };

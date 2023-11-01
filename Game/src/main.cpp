@@ -62,9 +62,11 @@ int main() {
 	window.create(L"Wowzers", SCREEN_WIDTH, SCREEN_HEIGHT);
 	window.show();
 
-	background = Background();
+	background = Background(1);
 
-	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &background);
+	auto& backgroundage = background.getLevelMap();
+
+	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &backgroundage);
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition(player.getPosition());
 

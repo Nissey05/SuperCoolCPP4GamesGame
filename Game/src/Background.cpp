@@ -9,7 +9,7 @@ using namespace Graphics;
 
 Background::Background() = default;
 
-Background::Background() {
+Background::Background(int overload) {
 	auto groundback = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
 	WorldMap1 = Sprite(groundback);
 }
@@ -58,19 +58,22 @@ BackgroundState Background::getState() {
 	return state;
 }
 
-void Background::update(float deltaTime) {
+void Background::update() {
 
 }
 
-float Background::getWidth(Sprite map) {
+int Background::getWidth() {
+	Sprite map = getLevelMap();
 	return map.getWidth();
 }
 
-float Background::getHeight(Sprite map) {
-	return map.getWidth();
+int Background::getHeight() {
+	Sprite map = getLevelMap();
+	return map.getHeight();
 }
 
-Sprite Background::getLevelMap(BackgroundState level) {
+Sprite& Background::getLevelMap() {
+	auto level = getState();
 	switch (level) {
 	case BackgroundState::Level1:
 		return WorldMap1;

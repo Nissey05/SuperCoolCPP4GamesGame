@@ -35,13 +35,18 @@ private:
 
 	void setState(BackgroundState newState);
 	BackgroundState getState();
-	
+	void doLevelOne();
 
 	Graphics::Sprite WorldMap1;
 	Graphics::Sprite WorldMap2;
 	Graphics::Sprite WorldMap3;
 	Graphics::Sprite StartScreen;
 	Graphics::Sprite DeathScreen;
+	Math::AABB aabb1{ {0, 737, 0}, {382, 800, 0} };
+	Math::AABB aabb2{ {515, 737, 0}, {970, 800, 0} };
+	Math::AABB aabb3{ {1066, 737, 0}, {1600, 800, 0} };
+	Math::AABB aabb4{ {375, 538, 0}, {505, 578, 0} };
+	Math::AABB aabb5{ {745, 614, 0}, {872, 659, 0} };
 
 	BackgroundState state = BackgroundState::Level1;
 

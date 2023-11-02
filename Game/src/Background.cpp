@@ -4,6 +4,7 @@
 #include<Graphics/Image.hpp>
 #include<Graphics/Sprite.hpp>
 #include<Math/Camera2D.hpp>
+#include<Math/AABB.hpp>
 
 using namespace Graphics;
 
@@ -33,6 +34,14 @@ void Background::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		image.drawSprite(DeathScreen, camera);
 		break;
 	}
+
+#if _DEBUG
+	image.drawAABB(aabb1, Color::Yellow, {}, FillMode::WireFrame);
+	image.drawAABB(aabb2, Color::Yellow, {}, FillMode::WireFrame);
+	image.drawAABB(aabb3, Color::Yellow, {}, FillMode::WireFrame);
+	image.drawAABB(aabb4, Color::Yellow, {}, FillMode::WireFrame);
+	image.drawAABB(aabb5, Color::Yellow, {}, FillMode::WireFrame);
+#endif
 }
 
 void Background::setState(BackgroundState newState) {
@@ -58,8 +67,14 @@ BackgroundState Background::getState() {
 	return state;
 }
 
-void Background::update() {
 
+
+void Background::update() {
+	switch (state) {
+	case BackgroundState::Level1:
+		doLevelOne();
+		break;
+	}
 }
 
 int Background::getWidth() {
@@ -89,4 +104,8 @@ Sprite& Background::getLevelMap() {
 
 void Background::setLevelMap(BackgroundState map) {
 	setState(map);
+}
+
+void Background::doLevelOne() {
+	
 }

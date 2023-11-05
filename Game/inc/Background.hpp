@@ -5,6 +5,7 @@
 #include <Math/Camera2D.hpp>
 #include <Graphics/Image.hpp>
 
+
 enum class BackgroundState
 {
 	Level1,
@@ -29,7 +30,9 @@ public:
 	void setLevelMap(BackgroundState map);
 	void draw(Graphics::Image& image, const Math::Camera2D& camera);
 
-	void update();
+	void update(class Player& player, Math::Camera2D& camera);
+
+	void resolveCollisionForLevel(class Player* player, Math::Camera2D& camera);
 
 private:
 
@@ -42,12 +45,7 @@ private:
 	Graphics::Sprite WorldMap3;
 	Graphics::Sprite StartScreen;
 	Graphics::Sprite DeathScreen;
-	Math::AABB aabb1{ {0, 737, 0}, {382, 800, 0} };
-	Math::AABB aabb2{ {515, 737, 0}, {970, 800, 0} };
-	Math::AABB aabb3{ {1066, 737, 0}, {1600, 800, 0} };
-	Math::AABB aabb4{ {375, 538, 0}, {505, 578, 0} };
-	Math::AABB aabb5{ {745, 614, 0}, {872, 659, 0} };
 
-	BackgroundState state = BackgroundState::Level1;
-
+	std::vector<Math::AABB> aabbVec;
+	BackgroundState state;
 };

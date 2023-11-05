@@ -64,13 +64,10 @@ int main() {
 
 	background = Background(1);
 
-	auto& backgroundage = background.getLevelMap();
 
-	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &backgroundage);
+	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &background);
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition(player.getPosition());
-
-	
 
 	Timer       timer;
 	double      totalTime = 0.0;
@@ -86,7 +83,8 @@ int main() {
 		// Update loop
 		Input::update();
 
-		player.update(timer.elapsedSeconds());
+		player.update(timer.elapsedSeconds(), camera);
+		background.update(player, camera);
 		
 		camera.setPosition(player.getPosition() + glm::vec2(16, 16));
 

@@ -16,12 +16,14 @@
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Background.hpp" />
     <ClInclude Include="inc\Enemy.hpp" />
     <ClInclude Include="inc\Entity.hpp" />
     <ClInclude Include="inc\Player.hpp" />
+    <ClInclude Include="inc\Utils.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

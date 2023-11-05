@@ -20,31 +20,36 @@ public:
 		Jumping,
 		Falling,
 	};
+
 	//Default constructor
-	Player();
+	Player() = default;
 
-	explicit Player(const glm::vec2& pos, Graphics::Sprite* Backside);
-
-	virtual void update(float deltaTime) override;
-
+	explicit Player(const glm::vec2& pos, class Background* backside);
+	virtual void update(float deltaTime, Math::Camera2D& camera) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override; 
-
 	virtual void Gravity(float deltaTime) override;
+	virtual void CheckBounds();
 
-	void CheckBounds();
+	void setVelocity(const glm::vec2& vel);
+	void setVelocityX(const float velX);
+	void setVelocityY(const float velY);
+	const glm::vec2& getVelocity() const;
 
+	void setAcceleration(const glm::vec2& acc);
+	void setAccelerationX(const float accX);
+	void setAccelerationY(const float accY);
+	const glm::vec2& getAcceleration() const;
 
 private:
 
 	void setState(State newState);
 
-	void doIdle(float deltaTime);
-	void doRunning(float deltaTime);
-	void doMovement(float deltaTime);
-	void doMove(float deltaTime);
-	void doJump(float deltaTime);
-
-	void doFalling(float deltaTime);
+	void doIdle(float deltaTime, Math::Camera2D& camera);
+	void doRunning(float deltaTime, Math::Camera2D& camera);
+	void doMovement(float deltaTime, Math::Camera2D& camera);
+	void doMove(float deltaTime, Math::Camera2D& camera);
+	void doJump(float deltaTime, Math::Camera2D& camera);
+	void doFalling(float deltaTime, Math::Camera2D& camera);
 	
 	glm::vec2 velocity{ 0 };
 	glm::vec2 acceleration{ 0 };
@@ -56,7 +61,7 @@ private:
 	Graphics::SpriteAnim runAnim;
 	Math::AABB aabb;
 
-	Graphics::Sprite* Backside;
+	class Background* backside;
 
 	State state = State::None;
 	

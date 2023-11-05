@@ -23,11 +23,9 @@ static std::map < Player::State, std::string> g_stateMap = {
 	{Player::State::Falling, "Falling" },
 };
 
-Player::Player() = default;
-
-Player::Player(const glm::vec2& pos, Sprite* Backside)
+Player::Player(const glm::vec2& pos, Background* backside)
 	: Entity{pos, { {0, 0, 0}, {32, 32, 0} } }, 
-	Backside(Backside)
+	backside(backside)
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/Pinky.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
@@ -38,19 +36,19 @@ Player::Player(const glm::vec2& pos, Sprite* Backside)
 	transform.setAnchor({ 16, 32 });
 }
 
-void Player::update(float deltaTime) {
+void Player::update(float deltaTime, Math::Camera2D& camera) {
 	switch (state) {
 	case State::Idle:
-		doIdle(deltaTime);
+		doIdle(deltaTime, camera);
 		break;
 	case State::Running:
-		doRunning(deltaTime);
+		doRunning(deltaTime, camera);
 		break;
 	case State::Jumping:
-		doJump(deltaTime);
+		doJump(deltaTime, camera);
 		break;
 	case State::Falling:
-		doFalling(deltaTime);
+		doFalling(deltaTime, camera);
 		break;
 	}
 }
@@ -100,7 +98,7 @@ void Player::setState(State newState) {
 	}
 }
 
-void Player::doMovement(float deltaTime) {
+void Player::doMovement(float deltaTime, Math::Camera2D& camera) {
 	auto initialPos = transform.getPosition();
 	auto newPos = initialPos;
 	
@@ -117,12 +115,14 @@ void Player::doMovement(float deltaTime) {
 		acceleration.x += (horizontalMove * speed * accelMultiCopy * deltaTime);
 	}
 	else {
-		float scaledAccelDamping = pow(referenceAccelDamping, deltaTime * referenceFPS);
-		float scaledVelocDamping = pow(referenceVelocDamping, deltaTime * referenceFPS);
-		velocity.x *= scaledVelocDamping;
-		acceleration *= scaledAccelDamping;
-		
-		if (glm::abs(velocity.x) < 20.f) velocity.x = 0, acceleration.x = 0;
+		if (state == State::Running) {
+			float scaledAccelDamping = pow(referenceAccelDamping, deltaTime * referenceFPS);
+			float scaledVelocDamping = pow(referenceVelocDamping, deltaTime * referenceFPS);
+			velocity.x *= scaledVelocDamping;
+			acceleration *= scaledAccelDamping;
+
+			if (glm::abs(velocity.x) < 20.f) velocity.x = 0, acceleration.x = 0;
+		}
 	}
 
 	Gravity(deltaTime);
@@ -141,14 +141,16 @@ void Player::doMovement(float deltaTime) {
 
 	CheckBounds();
 
+	backside->resolveCollisionForLevel(this, camera);
+
 	deltaPos = getPosition() - initialPos;
 }
 
-void Player::doMove(float deltaTime) {
+void Player::doMove(float deltaTime, Math::Camera2D& camera) {
 	
 }
-void Player::doIdle(float deltaTime) {
-	doMovement(deltaTime);
+void Player::doIdle(float deltaTime, Math::Camera2D& camera) {
+	doMovement(deltaTime, camera);
 
 	if (glm::abs(velocity.x) > 0) {
 		setState(State::Running);
@@ -166,8 +168,8 @@ void Player::doIdle(float deltaTime) {
 	idleAnim.update(deltaTime);
 }
 
-void Player::doRunning(float deltaTime) {
-	doMovement(deltaTime);
+void Player::doRunning(float deltaTime, Math::Camera2D& camera) {
+	doMovement(deltaTime, camera);
 
 	if (glm::abs(velocity.x) == 0.0f) {
 		setState(State::Idle);
@@ -185,14 +187,14 @@ void Player::doRunning(float deltaTime) {
 	runAnim.update(deltaTime);
 }
 
-void Player::doJump(float deltaTime) {
-	doMovement(deltaTime);
+void Player::doJump(float deltaTime, Math::Camera2D& camera) {
+	doMovement(deltaTime, camera);
 	if (velocity.y > 0.0f) setState(State::Falling);
 	idleAnim.update(deltaTime);
 }
 
-void Player::doFalling(float deltaTime) {
-	doMovement(deltaTime);
+void Player::doFalling(float deltaTime, Math::Camera2D& camera) {
+	doMovement(deltaTime, camera);
 	if (deltaPos.y < 1.0f) setState(State::Idle);
 	idleAnim.update(deltaTime);
 }
@@ -208,15 +210,15 @@ void Player::CheckBounds() {
 	if (aabb.min.x < 0.f) {
 		correction.x = -aabb.min.x;
 	}
-	else if (aabb.max.x >= Backside->getWidth()) {
-		correction.x = Backside->getWidth() - aabb.max.x;
+	else if (aabb.max.x >= backside->getLevelMap().getWidth()) {
+		correction.x = backside->getLevelMap().getWidth() - aabb.max.x;
 	}
 
 	if (aabb.min.y < 0.f) {
 		correction.y = -aabb.min.y;
 	}
-	else if (aabb.max.y >= Backside->getHeight()) {
-		correction.y = Backside->getHeight() - aabb.max.y;
+	else if (aabb.max.y >= backside->getLevelMap().getHeight()) {
+		correction.y = backside->getLevelMap().getHeight() - aabb.max.y;
 	}
 
 	translate(correction);
@@ -229,8 +231,45 @@ void Player::CheckBounds() {
 	if (glm::abs(correction.x) > 0.f) {
 		velocity.x = 0.f; 
 		acceleration.x = 0.f;
-
 	}
+}
 
-	
+void Player::setVelocity(const glm::vec2& vel)
+{
+	velocity = vel;
+}
+
+void Player::setVelocityX(const float velX)
+{
+	velocity.x = velX;
+}
+
+void Player::setVelocityY(const float velY)
+{
+	velocity.y = velY;
+}
+
+const glm::vec2& Player::getVelocity() const
+{
+	return velocity;
+}
+
+void Player::setAcceleration(const glm::vec2& acc)
+{
+	acceleration = acc;
+}
+
+void Player::setAccelerationX(const float accX)
+{
+	acceleration.x = accX;
+}
+
+void Player::setAccelerationY(const float accY)
+{
+	acceleration.y = accY;
+}
+
+const glm::vec2& Player::getAcceleration() const
+{
+	return acceleration;
 }

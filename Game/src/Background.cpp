@@ -1,19 +1,26 @@
 #include "Background.hpp"
 
-#include<Graphics/ResourceManager.hpp>
-#include<Graphics/Image.hpp>
-#include<Graphics/Sprite.hpp>
-#include<Math/Camera2D.hpp>
-#include<Math/AABB.hpp>
+#include <Graphics/ResourceManager.hpp>
+#include <Graphics/Image.hpp>
+#include <Graphics/Sprite.hpp>
+#include <Math/Camera2D.hpp>
+#include <Math/AABB.hpp>
+#include "Player.hpp"
+#include "Utils.hpp"
+#include <iostream>
 
 using namespace Graphics;
 
 Background::Background() = default;
 
-Background::Background(int overload) {
+Background::Background(int overload)
+{
 	auto groundback = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
 	WorldMap1 = Sprite(groundback);
+
+	setState(BackgroundState::Level1);
 }
+
 
 void Background::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 	switch (state)
@@ -36,11 +43,8 @@ void Background::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 	}
 
 #if _DEBUG
-	image.drawAABB(aabb1, Color::Yellow, {}, FillMode::WireFrame);
-	image.drawAABB(aabb2, Color::Yellow, {}, FillMode::WireFrame);
-	image.drawAABB(aabb3, Color::Yellow, {}, FillMode::WireFrame);
-	image.drawAABB(aabb4, Color::Yellow, {}, FillMode::WireFrame);
-	image.drawAABB(aabb5, Color::Yellow, {}, FillMode::WireFrame);
+	for (const auto& aabb : aabbVec)
+		image.drawAABB(camera * aabb, Color::Yellow, {}, FillMode::WireFrame);
 #endif
 }
 
@@ -48,6 +52,13 @@ void Background::setState(BackgroundState newState) {
 	if (newState != state) {
 		switch (newState) {
 		case BackgroundState::Level1:
+			aabbVec = {
+				Math::AABB({0, 737, 0}, {382, 800, 0}),
+				Math::AABB({515, 737, 0}, { 970, 800, 0 }),
+				Math::AABB({1066, 737, 0}, { 1600, 800, 0 }),
+				Math::AABB({375, 538, 0}, { 505, 578, 0 }),
+				Math::AABB({745, 614, 0}, { 872, 659, 0 }),
+			};
 			break;
 		case BackgroundState::Level2:
 			break;
@@ -67,9 +78,7 @@ BackgroundState Background::getState() {
 	return state;
 }
 
-
-
-void Background::update() {
+void Background::update(Player& player, Math::Camera2D& camera) {
 	switch (state) {
 	case BackgroundState::Level1:
 		doLevelOne();
@@ -108,4 +117,21 @@ void Background::setLevelMap(BackgroundState map) {
 
 void Background::doLevelOne() {
 	
+} 
+
+void Background::resolveCollisionForLevel(Player* player, Math::Camera2D& camera) {
+	for (const auto& aabb : aabbVec) {
+		glm::vec2 correction = Utils::GetCollisionCorrection(player->getAABB(), aabb);
+		player->translate(correction);
+
+		if (glm::abs(correction.y) > 0.f) {
+			player->setVelocityY(0.f);
+			player->setAccelerationY(0.f);
+
+		}
+		if (glm::abs(correction.x) > 0.f) {
+			player->setVelocityX(0.f);
+			player->setAccelerationX(0.f);
+		}
+	}
 }

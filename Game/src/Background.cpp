@@ -11,8 +11,6 @@
 
 using namespace Graphics;
 
-Background::Background() = default;
-
 Background::Background(int overload)
 {
 	auto groundback = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
@@ -78,7 +76,7 @@ BackgroundState Background::getState() {
 	return state;
 }
 
-void Background::update(Player& player, Math::Camera2D& camera) {
+void Background::update(Player& player) {
 	switch (state) {
 	case BackgroundState::Level1:
 		doLevelOne();
@@ -119,7 +117,7 @@ void Background::doLevelOne() {
 	
 } 
 
-void Background::resolveCollisionForLevel(Player* player, Math::Camera2D& camera) {
+void Background::resolveCollisionForLevel(Player* player) {
 	for (const auto& aabb : aabbVec) {
 		glm::vec2 correction = Utils::GetCollisionCorrection(player->getAABB(), aabb);
 		player->translate(correction);

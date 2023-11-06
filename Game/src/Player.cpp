@@ -36,19 +36,19 @@ Player::Player(const glm::vec2& pos, Background* backside)
 	transform.setAnchor({ 16, 32 });
 }
 
-void Player::update(float deltaTime, Math::Camera2D& camera) {
+void Player::update(float deltaTime) {
 	switch (state) {
 	case State::Idle:
-		doIdle(deltaTime, camera);
+		doIdle(deltaTime);
 		break;
 	case State::Running:
-		doRunning(deltaTime, camera);
+		doRunning(deltaTime);
 		break;
 	case State::Jumping:
-		doJump(deltaTime, camera);
+		doJump(deltaTime);
 		break;
 	case State::Falling:
-		doFalling(deltaTime, camera);
+		doFalling(deltaTime);
 		break;
 	}
 }
@@ -74,10 +74,6 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 	image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
 	auto pos = camera * transform;
 	image.drawText(Font::Default, g_stateMap[state], pos[2][0], pos[2][1] - 15, Color::White);
-	/*auto rectPos = Math::Rect<float>(getPosition().x - 5.f, getPosition().y - 5.f, 10.f, 10.f );
-	image.drawRectangle(camera * rectPos, Color::Black);
-	auto aaPos = Math::Rect<float>(getAABB().max.x - 21.f, getAABB().max.y - 5.f, 10.f, 10.f);
-	image.drawRectangle(camera * aaPos, Color::Black);*/
 #endif
 }
 
@@ -98,7 +94,7 @@ void Player::setState(State newState) {
 	}
 }
 
-void Player::doMovement(float deltaTime, Math::Camera2D& camera) {
+void Player::doMovement(float deltaTime) {
 	auto initialPos = transform.getPosition();
 	auto newPos = initialPos;
 	
@@ -141,16 +137,16 @@ void Player::doMovement(float deltaTime, Math::Camera2D& camera) {
 
 	CheckBounds();
 
-	backside->resolveCollisionForLevel(this, camera);
+	backside->resolveCollisionForLevel(this);
 
 	deltaPos = getPosition() - initialPos;
 }
 
-void Player::doMove(float deltaTime, Math::Camera2D& camera) {
+void Player::doMove(float deltaTime) {
 	
 }
-void Player::doIdle(float deltaTime, Math::Camera2D& camera) {
-	doMovement(deltaTime, camera);
+void Player::doIdle(float deltaTime) {
+	doMovement(deltaTime);
 
 	if (glm::abs(velocity.x) > 0) {
 		setState(State::Running);
@@ -168,8 +164,8 @@ void Player::doIdle(float deltaTime, Math::Camera2D& camera) {
 	idleAnim.update(deltaTime);
 }
 
-void Player::doRunning(float deltaTime, Math::Camera2D& camera) {
-	doMovement(deltaTime, camera);
+void Player::doRunning(float deltaTime) {
+	doMovement(deltaTime);
 
 	if (glm::abs(velocity.x) == 0.0f) {
 		setState(State::Idle);
@@ -187,14 +183,14 @@ void Player::doRunning(float deltaTime, Math::Camera2D& camera) {
 	runAnim.update(deltaTime);
 }
 
-void Player::doJump(float deltaTime, Math::Camera2D& camera) {
-	doMovement(deltaTime, camera);
+void Player::doJump(float deltaTime) {
+	doMovement(deltaTime);
 	if (velocity.y > 0.0f) setState(State::Falling);
 	idleAnim.update(deltaTime);
 }
 
-void Player::doFalling(float deltaTime, Math::Camera2D& camera) {
-	doMovement(deltaTime, camera);
+void Player::doFalling(float deltaTime) {
+	doMovement(deltaTime);
 	if (deltaPos.y < 1.0f) setState(State::Idle);
 	idleAnim.update(deltaTime);
 }

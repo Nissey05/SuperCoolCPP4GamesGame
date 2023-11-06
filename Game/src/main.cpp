@@ -1,5 +1,6 @@
 #include <Player.hpp>
 #include <Background.hpp>
+#include <Enemy.hpp>
 
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
@@ -25,6 +26,7 @@ Image image;
 TileMap grassTiles;
 Camera2D camera;
 Background background;
+Enemy enemy;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -64,7 +66,7 @@ int main() {
 
 	background = Background(1);
 
-
+	enemy = Enemy({ SCREEN_WIDTH - 100, SCREEN_HEIGHT - 100 }, &background);
 	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &background);
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition(player.getPosition());
@@ -83,9 +85,11 @@ int main() {
 		// Update loop
 		Input::update();
 
-		player.update(timer.elapsedSeconds(), camera);
-		background.update(player, camera);
+		player.update(timer.elapsedSeconds());
+		enemy.update(timer.elapsedSeconds());
+		background.update(player);
 		
+		// Camera position
 		camera.setPosition(player.getPosition() + glm::vec2(16, 16));
 
 		glm::vec2 cameraCorrection{ 0 };
@@ -110,6 +114,8 @@ int main() {
 		background.draw(image, camera);
 
 		player.draw(image, camera);
+
+		enemy.draw(image, camera);
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 
@@ -139,6 +145,7 @@ int main() {
 			}
 		}
 		
+		// Frame Counter, also calculates frames per second (fps)
 		++frameCount;
 
 		totalTime += timer.elapsedSeconds();

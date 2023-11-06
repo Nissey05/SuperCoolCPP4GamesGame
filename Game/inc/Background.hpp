@@ -19,7 +19,7 @@ enum class BackgroundState
 class Background {
 public:
 	//Default Constructor
-	Background();
+	Background() = default;
 
 	explicit Background(int overload);
 
@@ -30,9 +30,9 @@ public:
 	void setLevelMap(BackgroundState map);
 	void draw(Graphics::Image& image, const Math::Camera2D& camera);
 
-	void update(class Player& player, Math::Camera2D& camera);
+	void update(class Player& player);
 
-	void resolveCollisionForLevel(class Player* player, Math::Camera2D& camera);
+	void resolveCollisionForLevel(class Player* player);
 
 private:
 

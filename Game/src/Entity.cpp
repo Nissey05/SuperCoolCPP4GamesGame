@@ -29,7 +29,7 @@ bool Entity::collides(const Entity& entity) const {
 }
 
 void Entity::Gravity(float deltaTime) {
-	
+	//transform.setPosition(transform.getPosition() + glm::vec2{0, 1.f});
 }
 
 

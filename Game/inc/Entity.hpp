@@ -10,7 +10,7 @@ class Entity {
 public: 
 	virtual ~Entity() = default;
 
-	virtual void update(float deltaTime, Math::Camera2D& camera) = 0;
+	virtual void update(float deltaTime) = 0;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) = 0;
 	
 	void translate(const glm::vec2& t);

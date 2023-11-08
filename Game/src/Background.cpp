@@ -3,21 +3,24 @@
 #include <Graphics/ResourceManager.hpp>
 #include <Graphics/Image.hpp>
 #include <Graphics/Sprite.hpp>
+#include <Graphics/Input.hpp>
 #include <Math/Camera2D.hpp>
 #include <Math/AABB.hpp>
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Hulkazoid.hpp" 
 #include "Utils.hpp"
 #include <iostream>
 
 using namespace Graphics;
 
-Background::Background(int overload)
+Background::Background(Player* player)
+	: player(player)
 {
-	auto groundback = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
-	WorldMap1 = Sprite(groundback);
-
-	setState(BackgroundState::Level1);
+	auto screenStart = ResourceManager::loadImage("assets/Pinky/StartScreen.png");
+	startScreen = Sprite(screenStart);
+	auto groundBack = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
+	worldMap1 = Sprite(groundBack);
 }
 
 
@@ -25,19 +28,22 @@ void Background::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 	switch (state)
 	{
 	case BackgroundState::Level1:
-		image.drawSprite(WorldMap1, camera);
+		image.drawSprite(worldMap1, camera);
+		drawAssets(image, camera);
 		break;
 	case BackgroundState::Level2:
-		image.drawSprite(WorldMap2, camera);
+		image.drawSprite(worldMap2, camera);
+		drawAssets(image, camera);
 		break;
 	case BackgroundState::Level3:
-		image.drawSprite(WorldMap3, camera);
+		image.drawSprite(worldMap3, camera);
+		drawAssets(image, camera);
 		break;
 	case BackgroundState::Start:
-		image.drawSprite(StartScreen, camera);
+		image.drawSprite(startScreen, camera);
 		break;
 	case BackgroundState::Dead:
-		image.drawSprite(DeathScreen, camera);
+		image.drawSprite(deathScreen, camera);
 		break;
 	}
 
@@ -58,12 +64,20 @@ void Background::setState(BackgroundState newState) {
 				Math::AABB({375, 538, 0}, { 505, 578, 0 }),
 				Math::AABB({745, 614, 0}, { 872, 659, 0 }),
 			};
+			enemyVec = {
+				std::make_shared<Hulkazoid>(glm::vec2{620, 675}, this),
+				std::make_shared<Hulkazoid>(glm::vec2{800, 550}, this),
+				std::make_shared<Hulkazoid>(glm::vec2{1180, 670}, this)
+			};
+			player->setPosition({ 125, 720 });
 			break;
 		case BackgroundState::Level2:
 			break;
 		case BackgroundState::Level3:
 			break;
 		case BackgroundState::Start:
+			aabbVec = {};
+			enemyVec = {};
 			break;
 		case BackgroundState::Dead:
 			break;
@@ -77,12 +91,19 @@ BackgroundState Background::getState() {
 	return state;
 }
 
-void Background::update(Player& player) {
+void Background::update(float deltaTime) {
 	switch (state) {
-	case BackgroundState::Level1:
-		doLevelOne();
+	case BackgroundState::Start:
+		if(Input::getButtonDown("e")) setState(BackgroundState::Level1);
 		break;
+	case BackgroundState::Level1:
+		for (auto& enemy : enemyVec) {
+			enemy->update(deltaTime);
+		}
+		break;
+		
 	}
+	
 }
 
 int Background::getWidth() {
@@ -98,14 +119,17 @@ int Background::getHeight() {
 Sprite& Background::getLevelMap() {
 	auto level = getState();
 	switch (level) {
+	case BackgroundState::Start:
+		return startScreen;
+		break;
 	case BackgroundState::Level1:
-		return WorldMap1;
+		return worldMap1;
 		break;
 	case BackgroundState::Level2:
-		return WorldMap2;
+		return worldMap2;
 		break;
 	case BackgroundState::Level3:
-		return WorldMap3;
+		return worldMap3;
 		break;
 	}
 }
@@ -114,8 +138,12 @@ void Background::setLevelMap(BackgroundState map) {
 	setState(map);
 }
 
-void Background::doLevelOne() {
-	
+void Background::drawAssets(Graphics::Image& image, const Math::Camera2D& camera) {
+	for (const auto& enemy : enemyVec) {
+		if (enemy->getPosition().x < camera.getRightEdge() && enemy->getPosition().x > camera.getLeftEdge()) {
+			enemy->draw(image, camera);
+		}
+	}
 } 
 
 void Background::resolveCollisionForLevel(Entity* entity) {
@@ -126,7 +154,6 @@ void Background::resolveCollisionForLevel(Entity* entity) {
 		if (glm::abs(correction.y) > 0.f) {
 			entity->setVelocityY(0.f);
 			entity->setAccelerationY(0.f);
-
 		}
 		if (glm::abs(correction.x) > 0.f) {
 			entity->setVelocityX(0.f);

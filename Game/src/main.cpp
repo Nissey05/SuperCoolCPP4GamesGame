@@ -2,6 +2,7 @@
 #include <Background.hpp>
 #include <Enemy.hpp>
 #include <Utils.hpp>
+#include <Hulkazoid.hpp>
 
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
@@ -27,7 +28,6 @@ Image image;
 TileMap grassTiles;
 Camera2D camera;
 Background background;
-Enemy enemy;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -40,7 +40,8 @@ float Player_speed = 60.f;
 void InitGame() {
 	player.setPosition({ CHAR_START_POS, SCREEN_HEIGHT / 2 - 32 });
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
-	camera.setPosition(player.getPosition());
+	camera.setPosition({SCREEN_WIDTH /2, SCREEN_HEIGHT / 2});
+	background.setLevelMap(BackgroundState::Start);
 }
 
 int main() {
@@ -65,9 +66,7 @@ int main() {
 	window.create(L"Wowzers", SCREEN_WIDTH, SCREEN_HEIGHT);
 	window.show();
 
-	background = Background(1);
-
-	enemy = Enemy({ SCREEN_WIDTH - 100, SCREEN_HEIGHT - 100 }, &background);
+	background = Background(&player);
 	player = Player({SCREEN_WIDTH/2, SCREEN_HEIGHT/2}, &background);
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition(player.getPosition());
@@ -85,10 +84,10 @@ int main() {
 
 		// Update loop
 		Input::update();
-
+		
 		player.update(timer.elapsedSeconds());
-		enemy.update(timer.elapsedSeconds());
-		background.update(player);
+		background.update(timer.elapsedSeconds());
+		//hulky.update(timer.elapsedSeconds());
 		
 		// Camera position
 		camera.setPosition(player.getPosition() + glm::vec2(16, 16));
@@ -127,12 +126,15 @@ int main() {
 		image.clear(Color::Black);
 
 		background.draw(image, camera);
-
+		if(background.getState() == BackgroundState::Level1 
+			|| background.getState() == BackgroundState::Level2 
+			|| background.getState() == BackgroundState::Level3)
 		player.draw(image, camera);
 
-		enemy.draw(image, camera);
+		
 
-		if (player.collides(enemy)) enemy.setVelocityX(100);
+
+		//if (player.collides(hulky)) hulky.setVelocityX(100);
 		
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);

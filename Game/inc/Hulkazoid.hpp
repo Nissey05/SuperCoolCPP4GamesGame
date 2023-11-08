@@ -10,8 +10,5 @@ public:
 
 private:
 
-	SpriteAnim idleAnimHulk;
-	SpriteAnim runAnimHulk;
-
 	class Background* backside;
 };

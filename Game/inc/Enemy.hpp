@@ -27,7 +27,7 @@ public:
 protected:
 	Enemy() = default;
 
-	explicit Enemy(const glm::vec2& pos, class Background* backside, const Math::AABB& aabb);
+	explicit Enemy(const glm::vec2& pos, class Background* backside, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath);
 
 
 private:
@@ -44,8 +44,9 @@ private:
 
 	glm::vec2 deltaPos{ 0 };
 	EnemyState state;
-	Graphics::SpriteAnim& idleAnimEnemy;
-	Graphics::SpriteAnim& runAnimEnemy;
+	Graphics::SpriteAnim idleAnim;
+	Graphics::SpriteAnim runAnim;
+	Graphics::SpriteAnim fallAnim;
 
 	class Background* backside;
 

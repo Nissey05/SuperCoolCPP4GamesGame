@@ -19,10 +19,16 @@ static std::map < Enemy::EnemyState, std::string> g_stateMap = {
 };
 
 
-Enemy::Enemy(const glm::vec2& pos, Background* backside, const Math::AABB& aabb)
+Enemy::Enemy(const glm::vec2& pos, Background* backside, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath)
 	: Entity{ pos, { {0, 0, 0}, {32, 32, 0} }},
 	backside(backside)
 {
+	auto idleSprites = ResourceManager::loadSpriteSheet(idlePath, 32, 32, 0, 0, BlendMode::AlphaBlend);
+	idleAnim = SpriteAnim{ idleSprites, 6 };
+	auto runSprites = ResourceManager::loadSpriteSheet(runPath, 32, 32, 0, 0, BlendMode::AlphaBlend);
+	runAnim = SpriteAnim{ runSprites, 6 };
+	auto fallSprites = ResourceManager::loadSpriteSheet(fallPath, 32, 32, 0, 0, BlendMode::AlphaBlend);
+	fallAnim = SpriteAnim{ fallSprites, 6 };
 
 	setState(EnemyState::Idle);
 
@@ -48,13 +54,13 @@ void Enemy::draw(Graphics::Image& image, const Math::Camera2D& camera){
 	switch (state)
 	{
 	case EnemyState::Idle:
-		image.drawSprite(idleAnimEnemy, camera * transform);
+		image.drawSprite(idleAnim, camera * transform);
 		break;
 	case EnemyState::Running:
-		image.drawSprite(runAnimEnemy, camera * transform);
+		image.drawSprite(runAnim, camera * transform);
 		break;
 	case EnemyState::Falling:
-		image.drawSprite(idleAnimEnemy, camera * transform);
+		image.drawSprite(fallAnim, camera * transform);
 		break;
 	}
 
@@ -99,12 +105,10 @@ void Enemy::doMovement(float deltaTime){
 
 void Enemy::doIdle(float deltaTime) {
 	doMovement(deltaTime);
-	
-	velocity.x = -10.f;
 
 	if (glm::abs(deltaPos.x) > 0.f) setState(EnemyState::Running);
 	
-	idleAnimEnemy.update(deltaTime);
+	idleAnim.update(deltaTime);
 }
 
 void Enemy::doRunning(float deltaTime){
@@ -113,7 +117,7 @@ void Enemy::doRunning(float deltaTime){
 	if (glm::abs(deltaPos.x) == 0.f) setState(EnemyState::Idle);
 	if (deltaPos.y > 0.f) setState(EnemyState::Falling);
 	
-	runAnimEnemy.update(deltaTime);
+	runAnim.update(deltaTime);
 }
 
 void Enemy::doFalling(float deltaTime){
@@ -124,7 +128,7 @@ void Enemy::doFalling(float deltaTime){
 		else setState(EnemyState::Idle);
 	}
 
-	idleAnimEnemy.update(deltaTime);
+	idleAnim.update(deltaTime);
 }
 
 void Enemy::Gravity(float deltaTime){

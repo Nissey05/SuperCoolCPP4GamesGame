@@ -15,11 +15,12 @@ enum class BackgroundState
 	Dead
 
 };
-
+ 
 class Background {
 public:
 	//Default Constructor
 	Background() = default;
+	~Background() = default;
 
 	explicit Background(int overload);
 
@@ -32,9 +33,11 @@ public:
 
 	void update(class Player& player);
 
-	void resolveCollisionForLevel(class Player* player);
+	void resolveCollisionForLevel(class Entity* entity);
+	//void resolveEnemyCollisionForLevel(class Enemy* enemy);
 
 private:
+	
 
 	void setState(BackgroundState newState);
 	BackgroundState getState();

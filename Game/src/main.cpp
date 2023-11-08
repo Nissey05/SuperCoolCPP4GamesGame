@@ -1,6 +1,7 @@
 #include <Player.hpp>
 #include <Background.hpp>
 #include <Enemy.hpp>
+#include <Utils.hpp>
 
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
@@ -108,6 +109,20 @@ int main() {
 		if (Input::getButton("Reload")) 
 			InitGame();
 
+		/*glm::vec2 correction = Utils::GetCollisionCorrection(player.getAABB(), enemy.getAABB());
+		player.translate(correction);
+
+		if (glm::abs(correction.y) > 0.f) {
+			player.setVelocityY(0.f);
+			player.setAccelerationY(0.f);
+
+		}
+		if (glm::abs(correction.x) > 0.f) {
+			player.setVelocityX(0.f);
+			player.setAccelerationX(0.f);
+			enemy.setVelocityX(0.f);
+		}*/
+
 		//Render loop
 		image.clear(Color::Black);
 
@@ -116,6 +131,9 @@ int main() {
 		player.draw(image, camera);
 
 		enemy.draw(image, camera);
+
+		if (player.collides(enemy)) enemy.setVelocityX(100);
+		
 
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 

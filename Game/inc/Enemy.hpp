@@ -14,9 +14,9 @@ public:
 		Running,
 		Falling,
 	};
-	Enemy() = default;
 	
-	explicit Enemy(const glm::vec2& pos, class Background* backside);
+	
+	
 
 	virtual void update(float deltaTime) override;
 
@@ -24,12 +24,17 @@ public:
 
 	virtual void Gravity(float deltaTime) override;
 
+protected:
+	Enemy() = default;
+
+	explicit Enemy(const glm::vec2& pos, class Background* backside, const Math::AABB& aabb);
+
 
 private:
 
 	void setState(EnemyState newState);
 
-	glm::vec2 velocity{ 0 };
+
 	void doMovement(float deltaTime);
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
@@ -37,9 +42,10 @@ private:
 
 	void CheckBounds();
 
+	glm::vec2 deltaPos{ 0 };
 	EnemyState state;
-	Graphics::SpriteAnim idleAnimEnemy;
-	Graphics::SpriteAnim runAnimEnemy;
+	Graphics::SpriteAnim& idleAnimEnemy;
+	Graphics::SpriteAnim& runAnimEnemy;
 
 	class Background* backside;
 

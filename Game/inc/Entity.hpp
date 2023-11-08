@@ -21,10 +21,22 @@ public:
 	void setPosition(const glm::vec2& pos);
 	const glm::vec2& getPosition() const;
 
+	void setVelocity(const glm::vec2& vel);
+	void setVelocityX(const float velX);
+	void setVelocityY(const float velY);
+	const glm::vec2& getVelocity() const;
+
+	void setAcceleration(const glm::vec2& acc);
+	void setAccelerationX(const float accX);
+	void setAccelerationY(const float accY);
+	const glm::vec2& getAcceleration() const;
+
 protected:
 	Entity() = default;
 	Entity(const glm::vec2& pos, const Math::AABB& aabb);
 
 	Math::AABB aabb;
 	Math::Transform2D transform;
+	glm::vec2 velocity{ 0 };
+	glm::vec2 acceleration{ 0 };
 };

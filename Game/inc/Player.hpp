@@ -30,15 +30,7 @@ public:
 	virtual void Gravity(float deltaTime) override;
 	virtual void CheckBounds();
 
-	void setVelocity(const glm::vec2& vel);
-	void setVelocityX(const float velX);
-	void setVelocityY(const float velY);
-	const glm::vec2& getVelocity() const;
-
-	void setAcceleration(const glm::vec2& acc);
-	void setAccelerationX(const float accX);
-	void setAccelerationY(const float accY);
-	const glm::vec2& getAcceleration() const;
+	
 
 private:
 
@@ -51,14 +43,15 @@ private:
 	void doJump(float deltaTime);
 	void doFalling(float deltaTime);
 	
-	glm::vec2 velocity{ 0 };
-	glm::vec2 acceleration{ 0 };
+
 	glm::vec2 deltaPos{ 0 };
 	float speed{ 120.0f };
 	float maxHorizontal{ 200.f };
 	float accelerationMultiplier = 1.0f;
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
+	Graphics::SpriteAnim fallAnim;
+	Graphics::SpriteAnim jumpAnim;
 	Math::AABB aabb;
 
 	class Background* backside;

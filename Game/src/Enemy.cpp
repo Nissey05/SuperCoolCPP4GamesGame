@@ -5,6 +5,8 @@
 #include <Background.hpp>
 #include <map>
 
+#include <iostream>
+
 using namespace Graphics;
 
 static std::map < Enemy::EnemyState, std::string> g_stateMap = {
@@ -17,14 +19,10 @@ static std::map < Enemy::EnemyState, std::string> g_stateMap = {
 };
 
 
-Enemy::Enemy(const glm::vec2& pos, Background* backside)
-	: Entity{ pos, { {0, 0, 0}, {32, 32, 0} } },
+Enemy::Enemy(const glm::vec2& pos, Background* backside, const Math::AABB& aabb)
+	: Entity{ pos, { {0, 0, 0}, {32, 32, 0} }},
 	backside(backside)
 {
-	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/HulkazoidIdle.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
-	idleAnimEnemy = SpriteAnim{ idleSprites, 6 };
-	auto runSprites = ResourceManager::loadSpriteSheet("assets/Pinky/HulkazoidIdle.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
-	runAnimEnemy = SpriteAnim{ idleSprites, 6 };
 
 	setState(EnemyState::Idle);
 
@@ -41,6 +39,7 @@ void Enemy::update(float deltaTime) {
 		doRunning(deltaTime);
 		break;
 	case EnemyState::Falling:
+		doFalling(deltaTime);
 		break;
 	}
 }
@@ -92,19 +91,39 @@ void Enemy::doMovement(float deltaTime){
 	setPosition(newPos);
 
 	CheckBounds();
+
+	backside->resolveCollisionForLevel(this);
+
+	deltaPos = getPosition() - initialPos;
 }
 
 void Enemy::doIdle(float deltaTime) {
 	doMovement(deltaTime);
+	
+	velocity.x = -10.f;
+
+	if (glm::abs(deltaPos.x) > 0.f) setState(EnemyState::Running);
+	
 	idleAnimEnemy.update(deltaTime);
 }
 
 void Enemy::doRunning(float deltaTime){
 	doMovement(deltaTime);
+	
+	if (glm::abs(deltaPos.x) == 0.f) setState(EnemyState::Idle);
+	if (deltaPos.y > 0.f) setState(EnemyState::Falling);
+	
 	runAnimEnemy.update(deltaTime);
 }
 
 void Enemy::doFalling(float deltaTime){
+	doMovement(deltaTime);
+
+	if (deltaPos.y == 0.f) {
+		if (glm::abs(velocity.x) > 0.f) setState(EnemyState::Running);
+		else setState(EnemyState::Idle);
+	}
+
 	idleAnimEnemy.update(deltaTime);
 }
 
@@ -139,3 +158,4 @@ void Enemy::CheckBounds() {
 		velocity.x = 0.f;
 	}
 }
+

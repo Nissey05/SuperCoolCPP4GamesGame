@@ -6,6 +6,7 @@
 #include <Math/Camera2D.hpp>
 #include <Math/AABB.hpp>
 #include "Player.hpp"
+#include "Enemy.hpp"
 #include "Utils.hpp"
 #include <iostream>
 
@@ -117,19 +118,21 @@ void Background::doLevelOne() {
 	
 } 
 
-void Background::resolveCollisionForLevel(Player* player) {
+void Background::resolveCollisionForLevel(Entity* entity) {
 	for (const auto& aabb : aabbVec) {
-		glm::vec2 correction = Utils::GetCollisionCorrection(player->getAABB(), aabb);
-		player->translate(correction);
+		glm::vec2 correction = Utils::GetCollisionCorrection(entity->getAABB(), aabb);
+		entity->translate(correction);
 
 		if (glm::abs(correction.y) > 0.f) {
-			player->setVelocityY(0.f);
-			player->setAccelerationY(0.f);
+			entity->setVelocityY(0.f);
+			entity->setAccelerationY(0.f);
 
 		}
 		if (glm::abs(correction.x) > 0.f) {
-			player->setVelocityX(0.f);
-			player->setAccelerationX(0.f);
+			entity->setVelocityX(0.f);
+			entity->setAccelerationX(0.f);
 		}
 	}
 }
+
+

@@ -24,14 +24,18 @@ static std::map < Player::State, std::string> g_stateMap = {
 };
 
 Player::Player(const glm::vec2& pos, Background* backside)
-	: Entity{pos, { {0, 0, 0}, {32, 32, 0} } }, 
+	: Entity{pos, { {0, 0, 0}, {32, 32, 0} }}, 
 	backside(backside)
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/Pinky.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
-	auto runSprites = ResourceManager::loadSpriteSheet("assets/Spirit Boxer/Run.png", 137, 44, 0, 0, BlendMode::AlphaBlend);
+	auto runSprites = ResourceManager::loadSpriteSheet("assets/Pinky/pinkyRun.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	runAnim = SpriteAnim{ runSprites, 6 };
+	auto fallSprites = ResourceManager::loadSpriteSheet("assets/Pinky/pinkyFalling.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
+	fallAnim = SpriteAnim{ fallSprites, 6 };
 	setState(State::Falling);
+	auto jumpSprites = ResourceManager::loadSpriteSheet("assets/Pinky/pinkyJumping.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
+	jumpAnim = SpriteAnim{ jumpSprites, 6 };
 
 	transform.setAnchor({ 16, 32 });
 }
@@ -63,10 +67,10 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		image.drawSprite(runAnim, camera * transform);
 		break;
 	case State::Jumping:
-		image.drawSprite(idleAnim, camera * transform);
+		image.drawSprite(jumpAnim, camera * transform);
 		break;
 	case State::Falling:
-		image.drawSprite(idleAnim, camera * transform);
+		image.drawSprite(fallAnim, camera * transform);
 		break;
 	}
 
@@ -170,6 +174,7 @@ void Player::doRunning(float deltaTime) {
 	if (glm::abs(velocity.x) == 0.0f) {
 		setState(State::Idle);
 	}
+	if (deltaPos.y > 0.f) setState(State::Falling);
 
 	if (Input::getButton("Jump")) {
 		velocity.y = jumpSpeed;
@@ -186,13 +191,13 @@ void Player::doRunning(float deltaTime) {
 void Player::doJump(float deltaTime) {
 	doMovement(deltaTime);
 	if (velocity.y > 0.0f) setState(State::Falling);
-	idleAnim.update(deltaTime);
+	jumpAnim.update(deltaTime);
 }
 
 void Player::doFalling(float deltaTime) {
 	doMovement(deltaTime);
-	if (deltaPos.y < 1.0f) setState(State::Idle);
-	idleAnim.update(deltaTime);
+	if (velocity.y < 1.0f) setState(State::Idle);
+	fallAnim.update(deltaTime);
 }
 
 void Player::Gravity(float deltaTime) {
@@ -230,42 +235,4 @@ void Player::CheckBounds() {
 	}
 }
 
-void Player::setVelocity(const glm::vec2& vel)
-{
-	velocity = vel;
-}
 
-void Player::setVelocityX(const float velX)
-{
-	velocity.x = velX;
-}
-
-void Player::setVelocityY(const float velY)
-{
-	velocity.y = velY;
-}
-
-const glm::vec2& Player::getVelocity() const
-{
-	return velocity;
-}
-
-void Player::setAcceleration(const glm::vec2& acc)
-{
-	acceleration = acc;
-}
-
-void Player::setAccelerationX(const float accX)
-{
-	acceleration.x = accX;
-}
-
-void Player::setAccelerationY(const float accY)
-{
-	acceleration.y = accY;
-}
-
-const glm::vec2& Player::getAcceleration() const
-{
-	return acceleration;
-}

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -14,6 +14,7 @@
     <ClCompile Include="src\Background.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
     <ClCompile Include="src\Entity.cpp" />
+    <ClCompile Include="src\Hulkazoid.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Utils.cpp" />
@@ -22,6 +23,7 @@
     <ClInclude Include="inc\Background.hpp" />
     <ClInclude Include="inc\Enemy.hpp" />
     <ClInclude Include="inc\Entity.hpp" />
+    <ClInclude Include="inc\Hulkazoid.hpp" />
     <ClInclude Include="inc\Player.hpp" />
     <ClInclude Include="inc\Utils.hpp" />
   </ItemGroup>

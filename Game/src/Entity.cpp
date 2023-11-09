@@ -86,6 +86,14 @@ int Entity::getHP(){
 	return healthPoints;
 }
 
+const int Entity::getLives() const
+{
+	return lives;
+}
+
+void Entity::setLives(int life) {
+	lives = life;
+}
 
 
 

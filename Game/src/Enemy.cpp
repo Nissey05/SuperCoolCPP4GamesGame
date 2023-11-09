@@ -105,6 +105,8 @@ void Enemy::doIdle(float deltaTime) {
 	doMovement(deltaTime);
 
 	if (glm::abs(deltaPos.x) > 0.f) setState(EnemyState::Running);
+
+	if (name == "hulkazoid_enemy") velocity.x = -50;
 	
 	idleAnim.update(deltaTime);
 }

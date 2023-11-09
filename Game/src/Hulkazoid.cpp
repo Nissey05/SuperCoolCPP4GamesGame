@@ -21,4 +21,5 @@ Hulkazoid::Hulkazoid(const glm::vec2& pos, Level* level)
 		"assets/Pinky/HulkazoidFall.png"
 	)
 {
+
 }

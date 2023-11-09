@@ -110,13 +110,12 @@ int main() {
 
 		// Draw assets
 		level->draw(image, camera);
-		/*if(level->getState() == LevelState::Level1
-			|| level->getState() == LevelState::Level2
-			|| level->getState() == LevelState::Level3)
-		player->draw(image, camera);*/
+		
 
-		// Draw dps and present
+		// Draw fps & lives and present
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
+		std::string livesString = fmt::format("Lives: {}", static_cast<int>(player->getLives()));
+		image.drawText(Font::Default, livesString, 10, 25, Color::White);
 		window.present(image);
 
 		// Event loop

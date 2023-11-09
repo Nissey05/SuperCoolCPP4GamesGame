@@ -33,13 +33,17 @@ public:
 	void setAccelerationY(const float accY);
 	const glm::vec2& getAcceleration() const;
 
+	void setLives(const int life);
+	const int getLives() const;
+	
+
 	void doDamage();
 	int getHP();
 
 protected:
 	Entity() = default;
 	Entity(const std::string& name, const glm::vec2& pos, const Math::AABB& aabb);
-
+	int lives = 5;
 	std::string name;
 	int healthPoints;
 	Math::AABB aabb;

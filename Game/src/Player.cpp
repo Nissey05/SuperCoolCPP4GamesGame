@@ -45,6 +45,7 @@ void Player::init(std::shared_ptr<Level> level)
 }
 
 void Player::update(float deltaTime) {
+	if (healthPoints <= 0) setState(State::Dead);
 	switch (state) {
 	case State::Idle:
 		doIdle(deltaTime);
@@ -58,7 +59,11 @@ void Player::update(float deltaTime) {
 	case State::Falling:
 		doFalling(deltaTime);
 		break;
+	case State::Dead:
+		doDead(deltaTime);
+		break;
 	}
+	
 }
 
 void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
@@ -75,6 +80,9 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		break;
 	case State::Falling:
 		image.drawSprite(fallAnim, camera * transform);
+		break;
+	case State::Dead:
+		image.drawSprite(idleAnim, camera * transform);
 		break;
 	}
 
@@ -152,9 +160,6 @@ void Player::doMovement(float deltaTime) {
 	deltaPos = getPosition() - initialPos;
 }
 
-void Player::doMove(float deltaTime) {
-	
-}
 void Player::doIdle(float deltaTime) {
 	doMovement(deltaTime);
 
@@ -207,8 +212,24 @@ void Player::doFalling(float deltaTime) {
 }
 
 void Player::doDead(float deltaTime){
-	if (lives-- > 0) {
-		level->setState(level->getState());
+	if (lives > 0) {
+		switch (level->getState()) {
+		case LevelState::Level1:
+			level->initLevelOne();
+			break;
+		case LevelState::Level2:
+			level->initLevelTwo();
+			break;
+		case LevelState::Level3:
+			level->initLevelThree();
+			break;
+		}
+		setState(State::Idle);
+		healthPoints = 1;
+		lives--;
+	}
+	else if (lives <= 0) {
+		level->setState(LevelState::Dead);
 	}
 }
 
@@ -251,5 +272,6 @@ float Player::getJumpSpeed()
 {
 	return jumpSpeed;
 }
+
 
 

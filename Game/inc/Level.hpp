@@ -31,6 +31,11 @@ public:
 	int getWidth();
 	int getHeight();
 
+	void initLevelOne();
+	void initLevelTwo();
+	void initLevelThree();
+	void resetAssets();
+
 	LevelState getState();
 	void setState(LevelState newState);
 
@@ -41,6 +46,8 @@ public:
 private:
 	void drawAssets(Graphics::Image& image, const Math::Camera2D& camera);
 
+	
+
 	Graphics::Sprite worldMap1;
 	Graphics::Sprite worldMap2;
 	Graphics::Sprite worldMap3;
@@ -48,8 +55,10 @@ private:
 	Graphics::Sprite deathScreen;
 	Graphics::Sprite winScreen;
 
+	
 	Math::AABB endAABB;
 	std::vector<Math::AABB> aabbVec;
+	std::vector<Math::AABB> deathPitAABB;
 	std::vector<std::shared_ptr<class Entity>> entityList;
 
 	LevelState state;

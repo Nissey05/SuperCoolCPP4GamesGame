@@ -18,6 +18,7 @@
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Utils.cpp" />
+    <ClCompile Include="src\Vorz.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Level.hpp" />
@@ -26,6 +27,7 @@
     <ClInclude Include="inc\Hulkazoid.hpp" />
     <ClInclude Include="inc\Player.hpp" />
     <ClInclude Include="inc\Utils.hpp" />
+    <ClInclude Include="inc\Vorz.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

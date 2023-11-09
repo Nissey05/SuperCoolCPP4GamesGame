@@ -32,6 +32,7 @@ public:
 
 	void init(std::shared_ptr<class Level> level);
 	float getJumpSpeed();
+	
 
 private:
 	void setState(State newState);
@@ -39,7 +40,6 @@ private:
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
 	void doMovement(float deltaTime);
-	void doMove(float deltaTime);
 	void doJump(float deltaTime);
 	void doFalling(float deltaTime);
 	void doDead(float deltaTime);
@@ -49,7 +49,7 @@ private:
 	float speed{ 120.0f };
 	float maxHorizontal{ 200.f };
 	float accelerationMultiplier = 1.0f;
-	int lives = 5;
+	
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Graphics::SpriteAnim fallAnim;

@@ -2,18 +2,24 @@
 
 #include <iostream>
 
-Entity::Entity(const glm::vec2& pos, const Math::AABB& aabb)
-	: transform{ pos }
-	, aabb{ aabb }
-{
+Entity::Entity(const std::string& name, const glm::vec2& pos, const Math::AABB& aabb) :
+	name(name),
+	transform{ pos },
+	aabb{ aabb },
+	healthPoints(1)
+{ }
 
-}
 void Entity::setPosition(const glm::vec2& pos) {
 	transform.setPosition(pos);
 }
 
 const glm::vec2& Entity::getPosition() const {
 	return transform.getPosition();
+}
+
+const std::string& Entity::getName() const
+{
+	return name;
 }
 
 void Entity::translate(const glm::vec2& t) {
@@ -71,5 +77,15 @@ const glm::vec2& Entity::getAcceleration() const
 {
 	return acceleration;
 }
+
+void Entity::doDamage(){
+	healthPoints--;
+}
+
+int Entity::getHP(){
+	return healthPoints;
+}
+
+
 
 

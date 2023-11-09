@@ -5,44 +5,40 @@
 #include <Math/Camera2D.hpp>
 #include <Graphics/Image.hpp>
 
-
-enum class BackgroundState
+enum class LevelState
 {
 	Level1,
 	Level2,
 	Level3,
 	Start,
-	Dead
-
+	Dead,
+	Win
 };
- 
-class Background {
+
+ // Class could be renamed to Level as it handles entities / other objects next to background too.
+class Level : std::enable_shared_from_this<Level> {
 public:
 	//Default Constructor
-	Background() = default;
-	~Background() = default;
+	Level() = default;
+	~Level() = default;
 
-	explicit Background(class Player* player);
+	explicit Level(std::shared_ptr<class Player> player);
 
+	void draw(Graphics::Image& image, const Math::Camera2D& camera);
+	void update(float deltaTime);
+	void resolveCollisionForLevel(class Entity* entity);
+	
 	int getWidth();
 	int getHeight();
+
+	LevelState getState();
+	void setState(LevelState newState);
+
+	void nextLevel();
+	void setLevelMap(LevelState map);
 	Graphics::Sprite& getLevelMap();
 
-	void setLevelMap(BackgroundState map);
-	void draw(Graphics::Image& image, const Math::Camera2D& camera);
-
-	void update(float deltaTime);
-
-	BackgroundState getState();
-
-	void resolveCollisionForLevel(class Entity* entity);
-	//void resolveEnemyCollisionForLevel(class Enemy* enemy);
-
 private:
-
-
-	void setState(BackgroundState newState);
-	
 	void drawAssets(Graphics::Image& image, const Math::Camera2D& camera);
 
 	Graphics::Sprite worldMap1;
@@ -50,11 +46,11 @@ private:
 	Graphics::Sprite worldMap3;
 	Graphics::Sprite startScreen;
 	Graphics::Sprite deathScreen;
+	Graphics::Sprite winScreen;
 
-	class Player* player;
-
+	Math::AABB endAABB;
 	std::vector<Math::AABB> aabbVec;
-	std::vector < std::shared_ptr<class Enemy> > enemyVec;
+	std::vector<std::shared_ptr<class Entity>> entityList;
 
-	BackgroundState state;
+	LevelState state;
 };

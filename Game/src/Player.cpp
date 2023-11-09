@@ -5,7 +5,7 @@
 #include <Graphics/Font.hpp>
 #include <Math/Camera2D.hpp>
 #include <Graphics/Window.hpp>
-#include <Background.hpp>
+#include <Level.hpp>
 
 #include <iostream>
 #include <map>
@@ -23,9 +23,8 @@ static std::map < Player::State, std::string> g_stateMap = {
 	{Player::State::Falling, "Falling" },
 };
 
-Player::Player(const glm::vec2& pos, Background* backside)
-	: Entity{pos, { {0, 0, 0}, {32, 32, 0} }}, 
-	backside(backside)
+Player::Player(const glm::vec2& pos)
+	: Entity("player", pos, {{0, 0, 0}, {32, 32, 0}})
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/Pinky.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
@@ -36,8 +35,13 @@ Player::Player(const glm::vec2& pos, Background* backside)
 	setState(State::Falling);
 	auto jumpSprites = ResourceManager::loadSpriteSheet("assets/Pinky/pinkyJumping.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	jumpAnim = SpriteAnim{ jumpSprites, 6 };
-
+	healthPoints = 1;
 	transform.setAnchor({ 16, 32 });
+}
+
+void Player::init(std::shared_ptr<Level> level)
+{
+	this->level = level;
 }
 
 void Player::update(float deltaTime) {
@@ -92,6 +96,8 @@ void Player::setState(State newState) {
 			break;
 		case State::Falling:
 			break;
+		case State::Dead:
+			break;
 		}
 
 		state = newState;
@@ -141,7 +147,7 @@ void Player::doMovement(float deltaTime) {
 
 	CheckBounds();
 
-	backside->resolveCollisionForLevel(this);
+	level->resolveCollisionForLevel(this);
 
 	deltaPos = getPosition() - initialPos;
 }
@@ -200,6 +206,12 @@ void Player::doFalling(float deltaTime) {
 	fallAnim.update(deltaTime);
 }
 
+void Player::doDead(float deltaTime){
+	if (lives-- > 0) {
+		level->setState(level->getState());
+	}
+}
+
 void Player::Gravity(float deltaTime) {
 	velocity.y += gravity * deltaTime;
 }
@@ -211,15 +223,15 @@ void Player::CheckBounds() {
 	if (aabb.min.x < 0.f) {
 		correction.x = -aabb.min.x;
 	}
-	else if (aabb.max.x >= backside->getLevelMap().getWidth()) {
-		correction.x = backside->getLevelMap().getWidth() - aabb.max.x;
+	else if (aabb.max.x >= level->getLevelMap().getWidth()) {
+		correction.x = level->getLevelMap().getWidth() - aabb.max.x;
 	}
 
 	if (aabb.min.y < 0.f) {
 		correction.y = -aabb.min.y;
 	}
-	else if (aabb.max.y >= backside->getLevelMap().getHeight()) {
-		correction.y = backside->getLevelMap().getHeight() - aabb.max.y;
+	else if (aabb.max.y >= level->getLevelMap().getHeight()) {
+		correction.y = level->getLevelMap().getHeight() - aabb.max.y;
 	}
 
 	translate(correction);
@@ -233,6 +245,11 @@ void Player::CheckBounds() {
 		velocity.x = 0.f; 
 		acceleration.x = 0.f;
 	}
+}
+
+float Player::getJumpSpeed()
+{
+	return jumpSpeed;
 }
 
 

@@ -21,6 +21,8 @@ public:
 	void setPosition(const glm::vec2& pos);
 	const glm::vec2& getPosition() const;
 
+	const std::string& getName() const;
+
 	void setVelocity(const glm::vec2& vel);
 	void setVelocityX(const float velX);
 	void setVelocityY(const float velY);
@@ -31,10 +33,15 @@ public:
 	void setAccelerationY(const float accY);
 	const glm::vec2& getAcceleration() const;
 
+	void doDamage();
+	int getHP();
+
 protected:
 	Entity() = default;
-	Entity(const glm::vec2& pos, const Math::AABB& aabb);
+	Entity(const std::string& name, const glm::vec2& pos, const Math::AABB& aabb);
 
+	std::string name;
+	int healthPoints;
 	Math::AABB aabb;
 	Math::Transform2D transform;
 	glm::vec2 velocity{ 0 };

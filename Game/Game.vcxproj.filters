@@ -24,7 +24,7 @@
     <ClCompile Include="src\Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Background.cpp">
+    <ClCompile Include="src\Level.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Enemy.cpp">
@@ -44,7 +44,7 @@
     <ClInclude Include="inc\Entity.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Background.hpp">
+    <ClInclude Include="inc\Level.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Enemy.hpp">

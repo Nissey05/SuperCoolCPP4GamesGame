@@ -2,7 +2,8 @@
 
 #include <Graphics/SpriteAnim.hpp>
 #include <Graphics/ResourceManager.hpp>
-#include <Background.hpp>
+#include <Level.hpp>
+#include <Utils.hpp>
 #include <map>
 
 #include <iostream>
@@ -18,10 +19,9 @@ static std::map < Enemy::EnemyState, std::string> g_stateMap = {
 
 };
 
-
-Enemy::Enemy(const glm::vec2& pos, Background* backside, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath)
-	: Entity{ pos, { {0, 0, 0}, {32, 32, 0} }},
-	backside(backside)
+Enemy::Enemy(const std::string& name, const glm::vec2& pos, Level* level, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath) :
+	Entity(name, pos, { {0, 0, 0}, {32, 32, 0} }),
+	level(level)
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet(idlePath, 32, 32, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
@@ -31,10 +31,8 @@ Enemy::Enemy(const glm::vec2& pos, Background* backside, const Math::AABB& aabb,
 	fallAnim = SpriteAnim{ fallSprites, 6 };
 
 	setState(EnemyState::Idle);
-
-	transform.setScale({-1, 1});
+	transform.setScale({ -1, 1 });
 }
-
 
 void Enemy::update(float deltaTime) {
 	switch (state) {
@@ -98,7 +96,7 @@ void Enemy::doMovement(float deltaTime){
 
 	CheckBounds();
 
-	backside->resolveCollisionForLevel(this);
+	level->resolveCollisionForLevel(this);
 
 	deltaPos = getPosition() - initialPos;
 }
@@ -142,15 +140,15 @@ void Enemy::CheckBounds() {
 	if (aabb.min.x < 0.f) {
 		correction.x = -aabb.min.x;
 	}
-	else if (aabb.max.x >= backside->getLevelMap().getWidth()) {
-		correction.x = backside->getLevelMap().getWidth() - aabb.max.x;
+	else if (aabb.max.x >= level->getLevelMap().getWidth()) {
+		correction.x = level->getLevelMap().getWidth() - aabb.max.x;
 	}
 
 	if (aabb.min.y < 0.f) {
 		correction.y = -aabb.min.y;
 	}
-	else if (aabb.max.y >= backside->getLevelMap().getHeight()) {
-		correction.y = backside->getLevelMap().getHeight() - aabb.max.y;
+	else if (aabb.max.y >= level->getLevelMap().getHeight()) {
+		correction.y = level->getLevelMap().getHeight() - aabb.max.y;
 	}
 
 	translate(correction);
@@ -162,4 +160,16 @@ void Enemy::CheckBounds() {
 		velocity.x = 0.f;
 	}
 }
+
+//void Enemy::PlayerCollision() {
+//	glm::vec2 correction = Utils::GetCollisionCorrection(player->getAABB(), getAABB());
+//
+//	if (glm::abs(correction.x) > 0)
+//		player->doDamage();
+//
+//	if (glm::abs(correction.y) > 0) {
+//		doDamage();
+//		player->setVelocityY(player->getJumpSpeed() / 2);
+//	}
+//}
 

@@ -8,7 +8,7 @@
 
 
 
-class Player : public Entity{
+class Player : public Entity {
 public:
 	enum class State
 	{
@@ -24,16 +24,16 @@ public:
 	//Default constructor
 	Player() = default;
 
-	explicit Player(const glm::vec2& pos, class Background* backside);
+	explicit Player(const glm::vec2& pos);
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override; 
 	virtual void Gravity(float deltaTime) override;
 	virtual void CheckBounds();
 
-	
+	void init(std::shared_ptr<class Level> level);
+	float getJumpSpeed();
 
 private:
-
 	void setState(State newState);
 
 	void doIdle(float deltaTime);
@@ -42,22 +42,22 @@ private:
 	void doMove(float deltaTime);
 	void doJump(float deltaTime);
 	void doFalling(float deltaTime);
+	void doDead(float deltaTime);
 	
 
 	glm::vec2 deltaPos{ 0 };
 	float speed{ 120.0f };
 	float maxHorizontal{ 200.f };
 	float accelerationMultiplier = 1.0f;
+	int lives = 5;
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Graphics::SpriteAnim fallAnim;
 	Graphics::SpriteAnim jumpAnim;
 	Math::AABB aabb;
 
-	class Background* backside;
-
+	std::shared_ptr<class Level> level;
 	State state = State::None;
-	
 
 	float referenceAccelDamping = 0.6f;
 	float referenceVelocDamping = 0.8f;

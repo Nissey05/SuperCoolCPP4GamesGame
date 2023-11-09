@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Background.cpp" />
+    <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Hulkazoid.cpp" />
@@ -20,7 +20,7 @@
     <ClCompile Include="src\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\Background.hpp" />
+    <ClInclude Include="inc\Level.hpp" />
     <ClInclude Include="inc\Enemy.hpp" />
     <ClInclude Include="inc\Entity.hpp" />
     <ClInclude Include="inc\Hulkazoid.hpp" />

@@ -23,7 +23,7 @@ Level::Level(std::shared_ptr<Player> player)
 	startScreen = Sprite(screenStart);
 	auto screenDeath = ResourceManager::loadImage("assets/Pinky/DeathScreen.png");
 	deathScreen = Sprite(screenDeath);
-	auto screenWin = ResourceManager::loadImage("assets/Pinky/DeathScreen.png");
+	auto screenWin = ResourceManager::loadImage("assets/Pinky/WinScreen.png");
 	winScreen = Sprite(screenWin);
 	auto map1 = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
 	worldMap1 = Sprite(map1);
@@ -31,6 +31,7 @@ Level::Level(std::shared_ptr<Player> player)
 	worldMap2 = Sprite(map2);
 
 	// Setup entity list
+	entityList.reserve(50);
 	entityList.push_back(player);
 }
 
@@ -82,7 +83,11 @@ void Level::setState(LevelState newState) {
 		case LevelState::Dead:
 			resetAssets();
 			break;
+		case LevelState::Win:
+			resetAssets();
+			break;
 		}
+		
 
 		state = newState;
 	}
@@ -93,37 +98,40 @@ LevelState Level::getState() {
 }
 
 void Level::update(float deltaTime) {
+	//if (Input::getButtonDown("e")) nextLevel();
 	switch (state) {
 	case LevelState::Start:
 		if(Input::getButtonDown("e")) nextLevel();
 		break;
 	case LevelState::Level1:
-		for (size_t i = 0; i < entityList.size(); ) {
+		for (size_t i = 0; i < entityList.size(); i++) {
 			auto& entity = entityList[i];
 
 			// Checks if entity is not a nullptr
 			if (entity) {
+			//	if (i != 0) continue;
 				entity->update(deltaTime);
 
 				if (entity->getName() != "player" && entity->getHP() <= 0) {
 					entityList.erase(entityList.begin() + i);
-					continue;
+					i--;
+					continue ;
 				}
 			}
-			++i;
-			if (Input::getButtonDown("e")) nextLevel();
 		}
 		break;
 	case LevelState::Level2:
-		for (size_t i = 0; i < entityList.size(); ) {
+		for (size_t i = 0; i < entityList.size(); i++) {
 			auto& entity = entityList[i];
 
 			// Checks if entity is not a nullptr
 			if (entity) {
+			//	if (i != 0) continue;
 				entity->update(deltaTime);
 
 				if (entity->getName() != "player" && entity->getHP() <= 0) {
 					entityList.erase(entityList.begin() + i);
+					i--;
 					continue;
 				}
 				if (entity->getName() == "vorz_enemy") {
@@ -131,8 +139,6 @@ void Level::update(float deltaTime) {
 					enemy->Attack(entityList[0]);
 				}
 			}
-
-			++i;
 		}
 		break;
 	case LevelState::Dead:
@@ -162,8 +168,8 @@ int Level::getHeight() {
 }
 
 void Level::initLevelOne(){
-	//if (state != LevelState::Level1) setState(LevelState::Level1);
-			// Setup collision
+	
+	// Setup collision
 	aabbVec = {
 		Math::AABB({0, 737, 0}, {382, 800, 0}),
 		Math::AABB({515, 737, 0}, { 970, 800, 0 }),
@@ -227,8 +233,8 @@ void Level::initLevelTwo(){
 	entityList.erase(entityList.begin() + 1, entityList.end());
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 340, 2897 }, this));
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 450, 2897 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 23, 1610 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 37, 1224 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{23, 1610}, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{37, 1224}, this));
 	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 724, 770 }, this));
 	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 677, 1014 }, this));
 	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 674, 2717 }, this));

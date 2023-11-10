@@ -220,9 +220,6 @@ void Player::doDead(float deltaTime){
 		case LevelState::Level2:
 			level->initLevelTwo();
 			break;
-		case LevelState::Level3:
-			level->initLevelThree();
-			break;
 		}
 		setState(State::Idle);
 		healthPoints = 1;

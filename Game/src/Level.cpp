@@ -9,8 +9,10 @@
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Hulkazoid.hpp" 
+#include "Vorz.hpp"
 #include "Utils.hpp"
 #include <iostream>
+#include <algorithm>
 
 using namespace Graphics;
 
@@ -21,12 +23,12 @@ Level::Level(std::shared_ptr<Player> player)
 	startScreen = Sprite(screenStart);
 	auto screenDeath = ResourceManager::loadImage("assets/Pinky/DeathScreen.png");
 	deathScreen = Sprite(screenDeath);
+	auto screenWin = ResourceManager::loadImage("assets/Pinky/DeathScreen.png");
+	winScreen = Sprite(screenWin);
 	auto map1 = ResourceManager::loadImage("assets/Pinky/WorldMap1.png");
 	worldMap1 = Sprite(map1);
-	auto map2 = ResourceManager::loadImage("assets/Pinky/WorldMap3.png");
+	auto map2 = ResourceManager::loadImage("assets/Pinky/WorldMap2.png");
 	worldMap2 = Sprite(map2);
-	auto map3 = ResourceManager::loadImage("assets/Pinky/WorldMap3.png");
-	worldMap3 = Sprite(map3);
 
 	// Setup entity list
 	entityList.push_back(player);
@@ -44,10 +46,6 @@ void Level::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		image.drawSprite(worldMap2, camera);
 		drawAssets(image, camera);
 		break;
-	case LevelState::Level3:
-		image.drawSprite(worldMap3, camera);
-		drawAssets(image, camera);
-		break;
 	case LevelState::Start:
 		image.drawSprite(startScreen, camera);
 		break;
@@ -62,7 +60,7 @@ void Level::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 #if _DEBUG
 	for (const auto& aabb : aabbVec)
 		image.drawAABB(camera * aabb, Color::Yellow, {}, FillMode::WireFrame);
-	for (const auto& pits : deathPitAABB)
+	for (const auto& pits : deathBoxAABB)
 		image.drawAABB(camera * pits, Color::Red, {}, FillMode::WireFrame);
 	image.drawAABB(camera * endAABB, Color::Red, {}, FillMode::WireFrame);
 	
@@ -77,9 +75,6 @@ void Level::setState(LevelState newState) {
 			break;
 		case LevelState::Level2:
 			initLevelTwo();
-			break;
-		case LevelState::Level3:
-			initLevelThree();
 			break;
 		case LevelState::Start:
 			resetAssets();
@@ -98,48 +93,51 @@ LevelState Level::getState() {
 }
 
 void Level::update(float deltaTime) {
-	int i = 1;
 	switch (state) {
 	case LevelState::Start:
-		if(Input::getButtonDown("e")) setState(LevelState::Level1);
+		if(Input::getButtonDown("e")) nextLevel();
 		break;
 	case LevelState::Level1:
-		for (auto& entity: entityList) {
-			//checks if entity is not a nullptr
+		for (size_t i = 0; i < entityList.size(); ) {
+			auto& entity = entityList[i];
+
+			// Checks if entity is not a nullptr
 			if (entity) {
 				entity->update(deltaTime);
-				if (entity->getName() == "player") continue;
-				if (entity->getHP() <= 0) entityList.erase(entityList.begin() + i);
-				i++;
+
+				if (entity->getName() != "player" && entity->getHP() <= 0) {
+					entityList.erase(entityList.begin() + i);
+					continue;
+				}
 			}
+			++i;
+			if (Input::getButtonDown("e")) nextLevel();
 		}
-		if (Input::getButtonDown("e")) setState(LevelState::Level2);
 		break;
 	case LevelState::Level2:
-		for (auto& entity : entityList) {
+		for (size_t i = 0; i < entityList.size(); ) {
+			auto& entity = entityList[i];
+
+			// Checks if entity is not a nullptr
 			if (entity) {
 				entity->update(deltaTime);
-				if (entity->getName() == "player") continue;
-				if (entity->getHP() <= 0) entityList.erase(entityList.begin() + i);
-				i++;
+
+				if (entity->getName() != "player" && entity->getHP() <= 0) {
+					entityList.erase(entityList.begin() + i);
+					continue;
+				}
+				if (entity->getName() == "vorz_enemy") {
+					const auto& enemy = std::dynamic_pointer_cast<Enemy>(entity);
+					enemy->Attack(entityList[0]);
+				}
 			}
+
+			++i;
 		}
-		if (Input::getButtonDown("e")) setState(LevelState::Level3);
-		break;
-	case LevelState::Level3:
-		for (auto& entity : entityList) {
-			if (entity) {
-				entity->update(deltaTime);
-				if (entity->getName() == "player") continue;
-				if (entity->getHP() <= 0) entityList.erase(entityList.begin() + i);
-				i++;
-			}
-		}
-		if (Input::getButtonDown("e")) setState(LevelState::Win);
 		break;
 	case LevelState::Dead:
 		if (Input::getButtonDown("e")) {
-			entityList[0]->setLives(5);
+			entityList[0]->setLives(6);
 			setState(LevelState::Level1);
 		}
 			
@@ -174,7 +172,7 @@ void Level::initLevelOne(){
 		Math::AABB({745, 614, 0}, { 872, 659, 0 }),
 	};
 	// Setup deathbox collisions
-	deathPitAABB = {
+	deathBoxAABB = {
 		Math::AABB({382, 799, 0}, {515, 800, 0}),
 		Math::AABB({970, 799, 0}, {1056, 800, 0})
 	};
@@ -183,7 +181,7 @@ void Level::initLevelOne(){
 	entityList.erase(entityList.begin() + 1, entityList.end());
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 620, 675 }, this));
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 800, 550 }, this));
-	//entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 1180, 670 }, this));
+	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 1180, 670 }, this));
 
 	// Reset player position
 	entityList[0]->setPosition({ 125, 720 });
@@ -216,25 +214,31 @@ void Level::initLevelTwo(){
 		Math::AABB({157, 599, 0}, {800, 633, 0})
 	};
 	// Setup deathbox collisions
-	deathPitAABB = {
-		Math::AABB({382, 799, 0}, {515, 800, 0}),
-		Math::AABB({970, 799, 0}, {1056, 800, 0})
+	deathBoxAABB = {
+		Math::AABB({731, 2781, 0}, {778, 2786, 0}),
+		Math::AABB({1, 2312, 0}, {64, 2317, 0}),
+		Math::AABB({231, 2511, 0}, {278, 2516, 0}),
+		Math::AABB({374, 2099, 0}, {379, 2122, 0}),
+		Math::AABB({661, 2047, 0}, {788, 2052, 0}),
+		Math::AABB({3, 754, 0}, {34, 759, 0})
 	};
 
 	// Reset all entities but player and add enemies
 	entityList.erase(entityList.begin() + 1, entityList.end());
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 340, 2897 }, this));
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 450, 2897 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 23, 1610 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 37, 1224 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 724, 770 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 677, 1014 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 674, 2717 }, this));
+
 
 	// Reset player position
 	entityList[0]->setPosition({ 225, 2897 });
 
 	// End of level box
 	endAABB = { { 683, 533, 0 }, { 800, 599, 0 } };
-}
-
-void Level::initLevelThree(){
-
 }
 
 void Level::resetAssets(){
@@ -260,9 +264,6 @@ Sprite& Level::getLevelMap() {
 	case LevelState::Level2:
 		return worldMap2;
 		break;
-	case LevelState::Level3:
-		return worldMap3;
-		break;
 	}
 }
 
@@ -276,9 +277,6 @@ void Level::nextLevel(){
 		setState(LevelState::Level2);
 		break;
 	case LevelState::Level2:
-		setState(LevelState::Level3);
-		break;
-	case LevelState::Level3:
 		setState(LevelState::Win);
 		break;
 	}
@@ -337,8 +335,8 @@ void Level::resolveCollisionForLevel(Entity* entity) {
 		}
 	}
 
-	for (const auto& pits : deathPitAABB) {
-		if (entity->getAABB().intersect(pits)) entity->doDamage();
+	for (const auto& death : deathBoxAABB) {
+		if (entity->getAABB().intersect(death)) entity->doDamage();
 	}
 
 	if (entityList[0]->getAABB().intersect(endAABB)) nextLevel();

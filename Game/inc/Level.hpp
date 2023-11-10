@@ -9,14 +9,13 @@ enum class LevelState
 {
 	Level1,
 	Level2,
-	Level3,
 	Start,
 	Dead,
 	Win
 };
 
  // Class could be renamed to Level as it handles entities / other objects next to background too.
-class Level : std::enable_shared_from_this<Level> {
+class Level {
 public:
 	//Default Constructor
 	Level() = default;
@@ -33,7 +32,6 @@ public:
 
 	void initLevelOne();
 	void initLevelTwo();
-	void initLevelThree();
 	void resetAssets();
 
 	LevelState getState();
@@ -50,7 +48,6 @@ private:
 
 	Graphics::Sprite worldMap1;
 	Graphics::Sprite worldMap2;
-	Graphics::Sprite worldMap3;
 	Graphics::Sprite startScreen;
 	Graphics::Sprite deathScreen;
 	Graphics::Sprite winScreen;
@@ -58,7 +55,7 @@ private:
 	
 	Math::AABB endAABB;
 	std::vector<Math::AABB> aabbVec;
-	std::vector<Math::AABB> deathPitAABB;
+	std::vector<Math::AABB> deathBoxAABB;
 	std::vector<std::shared_ptr<class Entity>> entityList;
 
 	LevelState state;

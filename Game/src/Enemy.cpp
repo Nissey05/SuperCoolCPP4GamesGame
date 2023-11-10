@@ -29,7 +29,7 @@ Enemy::Enemy(const std::string& name, const glm::vec2& pos, Level* level, const 
 	runAnim = SpriteAnim{ runSprites, 6 };
 	auto fallSprites = ResourceManager::loadSpriteSheet(fallPath, 32, 32, 0, 0, BlendMode::AlphaBlend);
 	fallAnim = SpriteAnim{ fallSprites, 6 };
-
+	startPos = pos;
 	setState(EnemyState::Idle);
 	transform.setScale({ -1, 1 });
 }
@@ -87,8 +87,12 @@ void Enemy::setState(EnemyState newState) {
 void Enemy::doMovement(float deltaTime){
 	auto initialPos = getPosition();
 	auto newPos = initialPos;
-
-	Gravity(deltaTime);
+	
+	if (name == "hulkazoid_enemy") {
+		Gravity(deltaTime);
+	}
+	
+	velocity += acceleration * deltaTime;
 
 	newPos += velocity * deltaTime;
 
@@ -107,6 +111,10 @@ void Enemy::doIdle(float deltaTime) {
 	if (glm::abs(deltaPos.x) > 0.f) setState(EnemyState::Running);
 
 	if (name == "hulkazoid_enemy") velocity.x = -50;
+
+	if (name == "vorz_enemy") {
+		returnToStartPos();
+	}
 	
 	idleAnim.update(deltaTime);
 }
@@ -160,18 +168,41 @@ void Enemy::CheckBounds() {
 	}
 	if (glm::abs(correction.x) > 0.f) {
 		velocity.x = 0.f;
+		acceleration.x = 0.f;
 	}
 }
 
-//void Enemy::PlayerCollision() {
-//	glm::vec2 correction = Utils::GetCollisionCorrection(player->getAABB(), getAABB());
-//
-//	if (glm::abs(correction.x) > 0)
-//		player->doDamage();
-//
-//	if (glm::abs(correction.y) > 0) {
-//		doDamage();
-//		player->setVelocityY(player->getJumpSpeed() / 2);
-//	}
-//}
+
+void Enemy::Attack(std::shared_ptr<Entity> entity) {
+	if (state == EnemyState::Idle) {
+		if (entity->getPosition().y >= getPosition().y - 10 && entity->getPosition().y <= getPosition().y + 42) {
+			if (entity->getPosition().x > getPosition().x) {
+				setStartPos(getPosition());
+				setAccelerationX(100);
+				setState(EnemyState::Running);
+			}
+			else if (entity->getPosition().x < getPosition().x) {
+				setStartPos(getPosition());
+				setAccelerationX(-100);
+				setState(EnemyState::Running);
+			}
+		}
+	}
+}
+
+void Enemy::returnToStartPos() {
+	auto initialPos = getStartPos();
+	auto newPos = getPosition();
+	auto dPos = initialPos - newPos;
+	if (dPos.x != 0) setVelocityX(dPos.x / 5);
+}
+
+void Enemy::setStartPos(glm::vec2 pos) {
+	startPos = pos;
+}
+
+glm::vec2 Enemy::getStartPos()
+{
+	return glm::vec2(startPos);
+}
 

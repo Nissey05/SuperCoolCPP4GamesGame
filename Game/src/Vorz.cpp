@@ -23,3 +23,8 @@ Vorz::Vorz(const glm::vec2& pos, Level* level)
 	)
 {
 }
+
+
+
+
+

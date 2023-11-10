@@ -24,6 +24,13 @@ public:
 
 	virtual void onCollides(Entity* entity) {}
 
+	void Attack(std::shared_ptr<Entity> entity);
+
+	void returnToStartPos();
+
+	void setStartPos(glm::vec2 pos);
+	glm::vec2 getStartPos();
+
 protected:
 	Enemy() = default;
 	explicit Enemy(const std::string& name, const glm::vec2& pos, class Level* level, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath);
@@ -39,6 +46,7 @@ private:
 	void CheckBounds();
 
 	glm::vec2 deltaPos{ 0 };
+	glm::vec2 startPos{};
 	EnemyState state;
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;

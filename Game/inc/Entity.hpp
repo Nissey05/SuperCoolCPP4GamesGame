@@ -23,6 +23,8 @@ public:
 
 	const std::string& getName() const;
 
+	const std::string& getType() const;
+
 	void setVelocity(const glm::vec2& vel);
 	void setVelocityX(const float velX);
 	void setVelocityY(const float velY);
@@ -35,6 +37,14 @@ public:
 
 	void setLives(const int life);
 	const int getLives() const;
+
+	void setCoins(const int coins);
+	void setCoinsPlusOne();
+	const int getCoins() const;
+
+	void resetSpeed();
+
+	bool checkCameraBounds(const Math::Camera2D& camera);
 	
 
 	void doDamage();
@@ -42,9 +52,11 @@ public:
 
 protected:
 	Entity() = default;
-	Entity(const std::string& name, const glm::vec2& pos, const Math::AABB& aabb);
+	Entity(const std::string& name, const std::string& entityType, const glm::vec2& pos, const Math::AABB& aabb);
 	int lives = 5;
+	int coins = 0;
 	std::string name;
+	std::string entityType;
 	int healthPoints;
 	Math::AABB aabb;
 	Math::Transform2D transform;

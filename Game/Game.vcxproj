@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Coin.cpp" />
     <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
     <ClCompile Include="src\Entity.cpp" />
@@ -21,6 +22,7 @@
     <ClCompile Include="src\Vorz.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\Coin.hpp" />
     <ClInclude Include="inc\Level.hpp" />
     <ClInclude Include="inc\Enemy.hpp" />
     <ClInclude Include="inc\Entity.hpp" />

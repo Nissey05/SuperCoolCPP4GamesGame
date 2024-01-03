@@ -38,6 +38,8 @@ Image image;
 void InitGame() {
 	player->init(level);
 	player->setPosition({ CHAR_START_POS, SCREEN_HEIGHT / 2 - 32 });
+	player->resetSpeed();
+	player->setLives(6);
 	camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
 	camera.setPosition({SCREEN_WIDTH /2, SCREEN_HEIGHT / 2});
 	level->setLevelMap(LevelState::Start);
@@ -116,6 +118,8 @@ int main() {
 		image.drawText(Font::Default, fps, 10, 10, Color::White);
 		std::string livesString = fmt::format("Lives: {}", static_cast<int>(player->getLives()));
 		image.drawText(Font::Default, livesString, 10, 25, Color::White);
+		std::string coinsString = fmt::format("Coins: {}", static_cast<int>(player->getCoins()));
+		image.drawText(Font::Default, coinsString, 10, 40, Color::White);
 		window.present(image);
 
 		// Event loop

@@ -16,11 +16,12 @@ static std::map < Enemy::EnemyState, std::string> g_stateMap = {
 	{Enemy::EnemyState::Running, "Running" },
 	{Enemy::EnemyState::Dead, "Dead" },
 	{Enemy::EnemyState::Falling, "Falling" },
+	{Enemy::EnemyState::Return, "Return" },
 
 };
 
 Enemy::Enemy(const std::string& name, const glm::vec2& pos, Level* level, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath) :
-	Entity(name, pos, { {0, 0, 0}, {32, 32, 0} }),
+	Entity(name, "enemy", pos, {{0, 0, 0}, {32, 32, 0}}),
 	level(level)
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet(idlePath, 32, 32, 0, 0, BlendMode::AlphaBlend);
@@ -32,6 +33,7 @@ Enemy::Enemy(const std::string& name, const glm::vec2& pos, Level* level, const 
 	startPos = pos;
 	setState(EnemyState::Idle);
 	transform.setScale({ -1, 1 });
+	transform.setAnchor({ 16, 32 });
 }
 
 void Enemy::update(float deltaTime) {
@@ -44,6 +46,9 @@ void Enemy::update(float deltaTime) {
 		break;
 	case EnemyState::Falling:
 		doFalling(deltaTime);
+		break;
+	case EnemyState::Return:
+		doReturn(deltaTime);
 		break;
 	}
 }
@@ -59,6 +64,9 @@ void Enemy::draw(Graphics::Image& image, const Math::Camera2D& camera){
 		break;
 	case EnemyState::Falling:
 		image.drawSprite(fallAnim, camera * transform);
+		break;
+	case EnemyState::Return:
+		image.drawSprite(runAnim, camera * transform);
 		break;
 	}
 
@@ -111,10 +119,6 @@ void Enemy::doIdle(float deltaTime) {
 	if (glm::abs(deltaPos.x) > 0.f) setState(EnemyState::Running);
 
 	if (name == "hulkazoid_enemy") velocity.x = -50;
-
-	if (name == "vorz_enemy") {
-		returnToStartPos();
-	}
 	
 	idleAnim.update(deltaTime);
 }
@@ -122,9 +126,8 @@ void Enemy::doIdle(float deltaTime) {
 void Enemy::doRunning(float deltaTime){
 	doMovement(deltaTime);
 	
-	if (glm::abs(deltaPos.x) == 0.f) setState(EnemyState::Idle);
+	if (glm::abs(deltaPos.x) == 0.f)  (name == "vorz_enemy") ? setState(EnemyState::Return) : setState(EnemyState::Idle);
 	if (deltaPos.y > 0.f) setState(EnemyState::Falling);
-	
 	runAnim.update(deltaTime);
 }
 
@@ -137,6 +140,12 @@ void Enemy::doFalling(float deltaTime){
 	}
 
 	idleAnim.update(deltaTime);
+}
+
+void Enemy::doReturn(float deltaTime) {
+	doMovement(deltaTime);
+
+	returnToStartPos();
 }
 
 void Enemy::Gravity(float deltaTime){
@@ -161,8 +170,6 @@ void Enemy::CheckBounds() {
 		correction.y = level->getLevelMap().getHeight() - aabb.max.y;
 	}
 
-	translate(correction);
-
 	if (glm::abs(correction.y) > 0.f) {
 		velocity.y = 0.f;
 	}
@@ -170,6 +177,8 @@ void Enemy::CheckBounds() {
 		velocity.x = 0.f;
 		acceleration.x = 0.f;
 	}
+
+	translate(correction);
 }
 
 
@@ -180,11 +189,13 @@ void Enemy::Attack(std::shared_ptr<Entity> entity) {
 				setStartPos(getPosition());
 				setAccelerationX(100);
 				setState(EnemyState::Running);
+				std::cout << "charge" << std::endl;
 			}
 			else if (entity->getPosition().x < getPosition().x) {
 				setStartPos(getPosition());
 				setAccelerationX(-100);
 				setState(EnemyState::Running);
+				std::cout << "charge" << std::endl;
 			}
 		}
 	}
@@ -194,7 +205,12 @@ void Enemy::returnToStartPos() {
 	auto initialPos = getStartPos();
 	auto newPos = getPosition();
 	auto dPos = initialPos - newPos;
-	if (dPos.x != 0) setVelocityX(dPos.x / 5);
+	if (dPos.x != 0) setVelocityX(dPos.x > 0 ? 100 : -100);
+
+	if (glm::abs(dPos.x) < 5 && glm::abs(dPos.y) < 5) {
+			setVelocity({ 0, 0 });
+			setState(EnemyState::Idle);
+	}
 }
 
 void Enemy::setStartPos(glm::vec2 pos) {

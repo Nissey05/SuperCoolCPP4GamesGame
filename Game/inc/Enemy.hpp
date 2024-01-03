@@ -12,6 +12,7 @@ public:
 		Dead,
 		Running,
 		Falling,
+		Return,
 	};
 	
 	virtual void update(float deltaTime) override;
@@ -19,10 +20,6 @@ public:
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
 
 	virtual void Gravity(float deltaTime) override;
-
-	//void PlayerCollision(class Player* player);
-
-	virtual void onCollides(Entity* entity) {}
 
 	void Attack(std::shared_ptr<Entity> entity);
 
@@ -42,6 +39,7 @@ private:
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
 	void doFalling(float deltaTime);
+	void doReturn(float deltaTime);
 
 	void CheckBounds();
 
@@ -51,6 +49,8 @@ private:
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Graphics::SpriteAnim fallAnim;
+
+	bool gocheck = false;
 
 	class Level* level;
 

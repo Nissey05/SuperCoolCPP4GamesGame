@@ -3,7 +3,6 @@
 #include <Graphics/Keyboard.hpp>
 #include <Graphics/Mouse.hpp>
 
-
 #include <algorithm>
 #include <map>
 #include <string>

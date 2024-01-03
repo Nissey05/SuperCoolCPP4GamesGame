@@ -10,6 +10,7 @@
 #include "Enemy.hpp"
 #include "Hulkazoid.hpp" 
 #include "Vorz.hpp"
+#include "Coin.hpp"
 #include "Utils.hpp"
 #include <iostream>
 #include <algorithm>
@@ -98,7 +99,7 @@ LevelState Level::getState() {
 }
 
 void Level::update(float deltaTime) {
-	//if (Input::getButtonDown("e")) nextLevel();
+	if (Input::getButtonDown("e")) nextLevel();
 	switch (state) {
 	case LevelState::Start:
 		if(Input::getButtonDown("e")) nextLevel();
@@ -143,6 +144,7 @@ void Level::update(float deltaTime) {
 		break;
 	case LevelState::Dead:
 		if (Input::getButtonDown("e")) {
+			entityList[0]->resetSpeed();
 			entityList[0]->setLives(6);
 			setState(LevelState::Level1);
 		}
@@ -188,6 +190,7 @@ void Level::initLevelOne(){
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 620, 675 }, this));
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 800, 550 }, this));
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 1180, 670 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 300, 600 }, this));
 
 	// Reset player position
 	entityList[0]->setPosition({ 125, 720 });
@@ -231,13 +234,12 @@ void Level::initLevelTwo(){
 
 	// Reset all entities but player and add enemies
 	entityList.erase(entityList.begin() + 1, entityList.end());
-	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 340, 2897 }, this));
-	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 450, 2897 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{23, 1610}, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{37, 1224}, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 724, 770 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 677, 1014 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 674, 2717 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 16, 1642 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 21, 1256}, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 708, 802 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 661, 1046 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 658, 2749 }, this));
+	
 
 
 	// Reset player position
@@ -274,6 +276,7 @@ Sprite& Level::getLevelMap() {
 }
 
 void Level::nextLevel(){
+	entityList[0]->resetSpeed();
 	auto currentLevel = getState();
 	switch (currentLevel) {
 	case LevelState::Start:
@@ -294,8 +297,11 @@ void Level::setLevelMap(LevelState map) {
 
 void Level::drawAssets(Graphics::Image& image, const Math::Camera2D& camera) {
 	for (const auto& entity : entityList) {
-		if (entity->getPosition().x < camera.getRightEdge() && entity->getPosition().x > camera.getLeftEdge()) {
+		if (entity->checkCameraBounds(camera)) {
 			entity->draw(image, camera);
+		}
+		else {
+			entity->setVelocityX(0.f);
 		}
 	}
 } 
@@ -316,6 +322,14 @@ void Level::resolveCollisionForLevel(Entity* entity) {
 		}
 	}
 
+	for (const auto& death : deathBoxAABB) {
+		if (entity->getAABB().intersect(death)) entity->doDamage();
+	}
+
+	if (entityList[0]->getAABB().intersect(endAABB)) nextLevel();
+}
+
+void Level::resolveEntityCollision(Entity* entity){
 	// Resolve collision for entities
 	for (const auto& entity : entityList) {
 		// Ignore player as we're colliding against them
@@ -325,25 +339,29 @@ void Level::resolveCollisionForLevel(Entity* entity) {
 		const auto& player = std::dynamic_pointer_cast<Player>(entityList[0]);
 		glm::vec2 correction = Utils::GetCollisionCorrection(entity->getAABB(), player->getAABB());
 
-		
 
-		if (correction.y > 0.f) {
-			if (entity->getName() == "hulkazoid_enemy") {
-			entity->doDamage();
-			player->setVelocityY(player->getJumpSpeed() / 2);
+		if (entity->getType() == "enemy") {
+			if (correction.y > 0.f) {
+				if (entity->getName() == "hulkazoid_enemy") {
+					entity->doDamage();
+					player->setVelocityY(player->getJumpSpeed() / 2);
+					player->setCoins(player->getCoins() + 5);
+				}
+				else {
+					player->doDamage();
+				}
 			}
-			else {
+			if (glm::abs(correction.x) > 0.f || correction.y < 0.f) {
 				player->doDamage();
 			}
 		}
-		if (glm::abs(correction.x) > 0.f || correction.y < 0.f ) {
-			player->doDamage();
+		else if (entity->getType() == "collectible") {
+			if (glm::abs(correction.y) > 0.f || glm::abs(correction.x) > 0.f) {
+				entity->doDamage();
+				player->setCoinsPlusOne();
+			}
 		}
 	}
-
-	for (const auto& death : deathBoxAABB) {
-		if (entity->getAABB().intersect(death)) entity->doDamage();
-	}
-
-	if (entityList[0]->getAABB().intersect(endAABB)) nextLevel();
 }
+
+

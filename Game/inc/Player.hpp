@@ -43,10 +43,11 @@ private:
 	void doJump(float deltaTime);
 	void doFalling(float deltaTime);
 	void doDead(float deltaTime);
-	
+
+	void coinCheck();
 
 	glm::vec2 deltaPos{ 0 };
-	float speed{ 120.0f };
+	float speed{ 150.0f };
 	float maxHorizontal{ 200.f };
 	float accelerationMultiplier = 1.0f;
 	

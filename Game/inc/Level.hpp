@@ -26,6 +26,7 @@ public:
 	void draw(Graphics::Image& image, const Math::Camera2D& camera);
 	void update(float deltaTime);
 	void resolveCollisionForLevel(class Entity* entity);
+	void resolveEntityCollision(class Entity* entity);
 	
 	int getWidth();
 	int getHeight();
@@ -44,7 +45,7 @@ public:
 private:
 	void drawAssets(Graphics::Image& image, const Math::Camera2D& camera);
 
-	
+	bool taken = false;
 
 	Graphics::Sprite worldMap1;
 	Graphics::Sprite worldMap2;
@@ -56,6 +57,7 @@ private:
 	Math::AABB endAABB;
 	std::vector<Math::AABB> aabbVec;
 	std::vector<Math::AABB> deathBoxAABB;
+	//std::vector<class Coin> coinList;
 	std::vector<std::shared_ptr<class Entity>> entityList;
 
 	LevelState state;

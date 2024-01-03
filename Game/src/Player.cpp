@@ -24,7 +24,7 @@ static std::map < Player::State, std::string> g_stateMap = {
 };
 
 Player::Player(const glm::vec2& pos)
-	: Entity("player", pos, {{0, 0, 0}, {32, 32, 0}})
+	: Entity("player", "player", pos, {{0, 0, 0}, {32, 32, 0}})
 {
 	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/Pinky.png", 32, 32, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
@@ -119,14 +119,15 @@ void Player::doMovement(float deltaTime) {
 	auto horizontalMove = Input::getAxis("Horizontal");
 	float accelMultiCopy = accelerationMultiplier;
 
-	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy *= 60.f, velocity.x *= 0.3f;
-	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy *= 60.f, velocity.x *= 0.3f;
+	float scaledChangeDamp = pow(0.3f, deltaTime * referenceFPS);
+	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy = 1 / deltaTime, velocity.x *= scaledChangeDamp;
+	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy = 1 / deltaTime, velocity.x *= scaledChangeDamp;
 
 	if (glm::abs(horizontalMove) > 0.f) {
 		const bool isSprinting = Input::getButton("Sprint");
 		maxHorizontal = isSprinting ? 600.f : 200.f;
 		accelMultiCopy *= isSprinting ? 2.0f : 1.0f;
-		acceleration.x += (horizontalMove * speed * accelMultiCopy * deltaTime);
+		acceleration.x = (horizontalMove * speed * accelMultiCopy);
 	}
 	else {
 		if (state == State::Running) {
@@ -141,7 +142,7 @@ void Player::doMovement(float deltaTime) {
 
 	Gravity(deltaTime);
 
-	acceleration.x = glm::clamp(acceleration.x, -120.f, 120.f);
+	//acceleration.x = glm::clamp(acceleration.x, -120.f, 120.f);
 	acceleration.y = glm::clamp(acceleration.y, -80.f, 80.f);
 
 	velocity += acceleration * deltaTime;
@@ -153,9 +154,11 @@ void Player::doMovement(float deltaTime) {
 
 	setPosition(newPos);
 
-	CheckBounds();
-
 	level->resolveCollisionForLevel(this);
+
+	level->resolveEntityCollision(this);
+
+	CheckBounds();
 
 	deltaPos = getPosition() - initialPos;
 }
@@ -212,6 +215,7 @@ void Player::doFalling(float deltaTime) {
 }
 
 void Player::doDead(float deltaTime){
+	resetSpeed();
 	if (lives > 0) {
 		switch (level->getState()) {
 		case LevelState::Level1:
@@ -265,10 +269,17 @@ void Player::CheckBounds() {
 	}
 }
 
-float Player::getJumpSpeed()
-{
+float Player::getJumpSpeed() {
 	return jumpSpeed;
 }
+
+void Player::coinCheck() {
+	if (coins >= 100) {
+		coins -= 100;
+		lives++;
+	}
+}
+
 
 
 

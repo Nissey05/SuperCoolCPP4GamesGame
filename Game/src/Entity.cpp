@@ -1,9 +1,11 @@
 #include <Entity.hpp>
 
 #include <iostream>
+#include <Math/Camera2D.hpp>
 
-Entity::Entity(const std::string& name, const glm::vec2& pos, const Math::AABB& aabb) :
+Entity::Entity(const std::string& name, const std::string& type, const glm::vec2& pos, const Math::AABB& aabb) :
 	name(name),
+	entityType(type),
 	transform{ pos },
 	aabb{ aabb },
 	healthPoints(1)
@@ -20,6 +22,11 @@ const glm::vec2& Entity::getPosition() const {
 const std::string& Entity::getName() const
 {
 	return name;
+}
+
+const std::string& Entity::getType() const
+{
+	return entityType;
 }
 
 void Entity::translate(const glm::vec2& t) {
@@ -86,13 +93,49 @@ int Entity::getHP(){
 	return healthPoints;
 }
 
+void Entity::setLives(int life) {
+	lives = life;
+}
+
 const int Entity::getLives() const
 {
 	return lives;
 }
 
-void Entity::setLives(int life) {
-	lives = life;
+void Entity::setCoins(const int coin)
+{
+	coins = coin;
+}
+
+void Entity::setCoinsPlusOne()
+{
+	coins++;
+}
+
+const int Entity::getCoins() const
+{
+	return coins;
+}
+
+
+
+void Entity::resetSpeed() {
+	setAcceleration({ 0, 0 });
+	setVelocity({ 0, 0 });
+}
+
+bool Entity::checkCameraBounds(const Math::Camera2D& camera)
+{
+	if (getPosition().x < camera.getRightEdge()
+		&& getPosition().x > camera.getLeftEdge()
+		&& getPosition().y > camera.getTopEdge()
+		&& getPosition().y < camera.getBottomEdge()) {
+		return true;
+	}
+	else {
+		return false;
+	}
+	
 }
 
 

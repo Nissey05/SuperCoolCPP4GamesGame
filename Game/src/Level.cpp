@@ -30,6 +30,8 @@ Level::Level(std::shared_ptr<Player> player)
 	worldMap1 = Sprite(map1);
 	auto map2 = ResourceManager::loadImage("assets/Pinky/WorldMap2.png");
 	worldMap2 = Sprite(map2);
+	auto map3 = ResourceManager::loadImage("assets/Pinky/WorldMap3.png");
+	worldMap3 = Sprite(map3);
 
 	// Setup entity list
 	entityList.reserve(50);
@@ -46,6 +48,10 @@ void Level::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		break;
 	case LevelState::Level2:
 		image.drawSprite(worldMap2, camera);
+		drawAssets(image, camera);
+		break;
+	case LevelState::Level3:
+		image.drawSprite(worldMap3, camera);
 		drawAssets(image, camera);
 		break;
 	case LevelState::Start:
@@ -78,6 +84,9 @@ void Level::setState(LevelState newState) {
 		case LevelState::Level2:
 			initLevelTwo();
 			break;
+		case LevelState::Level3:
+			initLevelThree();
+			break;
 		case LevelState::Start:
 			resetAssets();
 			break;
@@ -99,10 +108,10 @@ LevelState Level::getState() {
 }
 
 void Level::update(float deltaTime) {
-	if (Input::getButtonDown("e")) nextLevel();
+	if (Input::getButtonDown("f")) nextLevel();
 	switch (state) {
 	case LevelState::Start:
-		if(Input::getButtonDown("e")) nextLevel();
+		if(Input::getButtonDown("start")) nextLevel();
 		break;
 	case LevelState::Level1:
 		for (size_t i = 0; i < entityList.size(); i++) {
@@ -142,8 +151,29 @@ void Level::update(float deltaTime) {
 			}
 		}
 		break;
+	case LevelState::Level3:
+		for (size_t i = 0; i < entityList.size(); i++) {
+			auto& entity = entityList[i];
+
+			// Checks if entity is not a nullptr
+			if (entity) {
+				//	if (i != 0) continue;
+				entity->update(deltaTime);
+
+				if (entity->getName() != "player" && entity->getHP() <= 0) {
+					entityList.erase(entityList.begin() + i);
+					i--;
+					continue;
+				}
+				if (entity->getName() == "vorz_enemy") {
+					const auto& enemy = std::dynamic_pointer_cast<Enemy>(entity);
+					enemy->Attack(entityList[0]);
+				}
+			}
+		}
+		break;
 	case LevelState::Dead:
-		if (Input::getButtonDown("e")) {
+		if (Input::getButtonDown("use")) {
 			entityList[0]->resetSpeed();
 			entityList[0]->setLives(6);
 			setState(LevelState::Level1);
@@ -151,7 +181,7 @@ void Level::update(float deltaTime) {
 			
 		break;
 	case LevelState::Win:
-		if (Input::getButtonDown("e")) setState(LevelState::Start);
+		if (Input::getButtonDown("use")) setState(LevelState::Start);
 		break;
 
 	}
@@ -160,20 +190,19 @@ void Level::update(float deltaTime) {
 }
 
 int Level::getWidth() {
-	Sprite map = getLevelMap();
-	return map.getWidth();
+	return getLevelMap().getWidth();
 }
 
 int Level::getHeight() {
-	Sprite map = getLevelMap();
-	return map.getHeight();
+	return getLevelMap().getHeight();
 }
 
 void Level::initLevelOne(){
 	
 	// Setup collision
 	aabbVec = {
-		Math::AABB({0, 737, 0}, {382, 800, 0}),
+		Math::AABB({0, 667, 0}, { 89, 725, 0 }),
+		Math::AABB({0, 737, 0}, { 382, 800, 0 }),
 		Math::AABB({515, 737, 0}, { 970, 800, 0 }),
 		Math::AABB({1066, 737, 0}, { 1600, 800, 0 }),
 		Math::AABB({375, 538, 0}, { 505, 578, 0 }),
@@ -190,7 +219,14 @@ void Level::initLevelOne(){
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 620, 675 }, this));
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 800, 550 }, this));
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 1180, 670 }, this));
-	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 300, 600 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 226, 600 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 267, 371 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 439, 631 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 537, 277 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 573, 470 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 763, 385 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 936, 506 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 1204, 470 }, this));
 
 	// Reset player position
 	entityList[0]->setPosition({ 125, 720 });
@@ -239,6 +275,33 @@ void Level::initLevelTwo(){
 	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 708, 802 }, this));
 	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 661, 1046 }, this));
 	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 658, 2749 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 364, 2639 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 762, 2612 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 278, 2464 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 660, 2400 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 23,  2141 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 319,  2061 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 715, 1906 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 271, 1786 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 32, 1602}, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 354, 1531 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 380, 1531 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 405, 1531 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 687, 1364 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 11, 1286 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 211, 1121 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 713, 957 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 331, 840 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 238, 702 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 15, 617 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 395, 525 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 411, 502 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 426, 473 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 448, 442 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 458, 409 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 470, 380 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 476, 347 }, this));
+	
 	
 
 
@@ -247,6 +310,58 @@ void Level::initLevelTwo(){
 
 	// End of level box
 	endAABB = { { 683, 533, 0 }, { 800, 599, 0 } };
+}
+
+void Level::initLevelThree()
+{
+	// Setup collision
+	aabbVec = {
+		Math::AABB({ 0, 753, 0 }, { 321, 800, 0 }),
+		Math::AABB({ 503, 647, 0 }, { 740, 691, 0 }),
+		Math::AABB({ 921, 760, 0 }, { 993, 800, 0 }),
+		Math::AABB({ 903, 527, 0 }, { 1175, 566, 0 }),
+		Math::AABB({ 1125, 722, 0 }, { 1221, 756, 0 }),
+		Math::AABB({ 1301, 632, 0 }, { 1783, 668, 0 }),
+		Math::AABB({ 1927, 749, 0 }, { 3914, 800, 0 }),
+		Math::AABB({ 2433, 648, 0 }, { 2535, 749, 0 }),
+		Math::AABB({ 2672, 510, 0 }, { 2789, 624, 0 }),
+		Math::AABB({ 2905, 400, 0 }, { 3059, 447, 0 }),
+		Math::AABB({ 3191, 310, 0 }, { 3294, 749, 0 }),
+		Math::AABB({ 4145, 612, 0 }, { 4252, 649, 0 }),
+		Math::AABB({ 4444, 555, 0 }, { 4552, 577, 0 }),
+		Math::AABB({ 4837, 624, 0 }, { 4967, 652, 0 }),
+		Math::AABB({ 5167, 480, 0 }, { 5235, 515, 0 }),
+		Math::AABB({ 5497, 384, 0 }, { 5575, 420, 0 }),
+		Math::AABB({ 5759, 514, 0 }, { 5912, 544, 0 }),
+		Math::AABB({ 6181, 699, 0 }, { 8000, 800, 0 })
+	};
+	// Setup deathbox collisions
+	deathBoxAABB = {
+		Math::AABB({ 1197, 717, 0 }, { 1220, 722, 0 }),
+		Math::AABB({ 1489, 627, 0 }, { 1572, 633, 0 }),
+		Math::AABB({ 2789, 588, 0 }, { 2795, 623, 0 }),
+		Math::AABB({ 3294, 725, 0 }, { 3299, 748, 0 }),
+		Math::AABB({ 0, 799, 0 }, { 8000, 800, 0 })
+	};
+
+	// Reset all entities but player and add enemies
+	entityList.erase(entityList.begin() + 1, entityList.end());
+	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 620, 675 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 410, 619 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 930, 723 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 965, 723 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 998, 723 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 1528, 529 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 3174, 742 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 3489, 469 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 3601, 569 }, this));
+	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 4733, 464 }, this));
+
+	// Reset player position
+	entityList[0]->setPosition({ 118, 750 });
+
+	// End of level box
+	endAABB = { { 7797, 608, 0 }, { 8000, 699, 0 } };
 }
 
 void Level::resetAssets(){
@@ -272,8 +387,12 @@ Sprite& Level::getLevelMap() {
 	case LevelState::Level2:
 		return worldMap2;
 		break;
+	case LevelState::Level3:
+		return worldMap3;
+		break;
 	}
 }
+
 
 void Level::nextLevel(){
 	entityList[0]->resetSpeed();
@@ -286,6 +405,9 @@ void Level::nextLevel(){
 		setState(LevelState::Level2);
 		break;
 	case LevelState::Level2:
+		setState(LevelState::Level3);
+		break;
+	case LevelState::Level3:
 		setState(LevelState::Win);
 		break;
 	}

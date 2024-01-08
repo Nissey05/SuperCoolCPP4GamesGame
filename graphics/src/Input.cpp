@@ -169,6 +169,34 @@ static std::map<std::string, AxisCallback> g_AxisMap = {
 
         return std::clamp(x + shift, -1.0f, 1.0f);
      } },
+    {
+        "Use", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
+        float b = 0.0f;
+
+        for (auto& gamePadState : gamePadStates) {
+            const auto state = gamePadState.getLastState();
+            b += state.buttons.b ? 1.0f : 0.0f;
+        }
+
+        const float e = keyboardState.getLastState().E ? 1.0f : 0.0f;
+
+
+        return std::clamp(b + e, -1.0f, 1.0f);
+     } },
+    {
+        "Start", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
+        float start = 0.0f;
+
+        for (auto& gamePadState : gamePadStates) {
+            const auto state = gamePadState.getLastState();
+            start += state.buttons.start ? 1.0f : 0.0f;
+        }
+
+        const float e = keyboardState.getLastState().E ? 1.0f : 0.0f;
+
+
+        return std::clamp(start + e, -1.0f, 1.0f);
+     } },
     { "Fire1", []( std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState ) {
          float rightTrigger = 0.0f;
 
@@ -604,6 +632,24 @@ static std::map<std::string, ButtonCallback> g_ButtonMap = {
 static std::map<std::string, ButtonCallback> g_ButtonDownMap = {
     { "win", []( std::span<const GamePadStateTracker>, const KeyboardStateTracker& keyboardState, const MouseStateTracker& ) {
          return keyboardState.isKeyPressed( KeyCode::LeftWindows ) || keyboardState.isKeyPressed( KeyCode::RightWindows );
+     } },
+    { "start", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker&) {
+         float start = 0.0f;
+
+        for (auto& gamePadState : gamePadStates) {
+            const auto state = gamePadState.getLastState();
+            start += state.buttons.start ? 1.0f : 0.0f;
+        }
+         return keyboardState.isKeyPressed(KeyCode::E) || start;
+     } },
+    { "use", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker&) {
+         float b = 0.0f;
+
+        for (auto& gamePadState : gamePadStates) {
+            const auto state = gamePadState.getLastState();
+            b += state.buttons.b ? 1.0f : 0.0f;
+        }
+         return keyboardState.isKeyPressed(KeyCode::E) || b;
      } },
     { "mouse 0", []( std::span<const GamePadStateTracker>, const KeyboardStateTracker&, const MouseStateTracker& mouseState ) {
          return mouseState.leftButton == ButtonState::Pressed;

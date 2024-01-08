@@ -120,8 +120,8 @@ void Player::doMovement(float deltaTime) {
 	float accelMultiCopy = accelerationMultiplier;
 
 	float scaledChangeDamp = pow(0.3f, deltaTime * referenceFPS);
-	if (horizontalMove > 0 && acceleration.x < 0) accelMultiCopy = 1 / deltaTime, velocity.x *= scaledChangeDamp;
-	if (horizontalMove < 0 && acceleration.x > 0) accelMultiCopy = 1 / deltaTime, velocity.x *= scaledChangeDamp;
+	if (horizontalMove > 0 && velocity.x < 0) accelMultiCopy = 40, velocity.x *= scaledChangeDamp;
+	if (horizontalMove < 0 && velocity.x > 0) accelMultiCopy = 40, velocity.x *= scaledChangeDamp;
 
 	if (glm::abs(horizontalMove) > 0.f) {
 		const bool isSprinting = Input::getButton("Sprint");
@@ -176,7 +176,6 @@ void Player::doIdle(float deltaTime) {
 	if (Input::getButton("Jump")) {
 		velocity.y = jumpSpeed;
 		setState(State::Jumping);
-		
 	}
 
 	idleAnim.update(deltaTime);
@@ -223,6 +222,9 @@ void Player::doDead(float deltaTime){
 			break;
 		case LevelState::Level2:
 			level->initLevelTwo();
+			break;
+		case LevelState::Level3:
+			level->initLevelThree();
 			break;
 		}
 		setState(State::Idle);
@@ -279,7 +281,3 @@ void Player::coinCheck() {
 		lives++;
 	}
 }
-
-
-
-

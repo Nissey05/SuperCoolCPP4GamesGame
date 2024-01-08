@@ -126,10 +126,10 @@ void Entity::resetSpeed() {
 
 bool Entity::checkCameraBounds(const Math::Camera2D& camera)
 {
-	if (getPosition().x < camera.getRightEdge()
-		&& getPosition().x > camera.getLeftEdge()
+	if (getPosition().x  < camera.getRightEdge() + 16
+		&& getPosition().x  > camera.getLeftEdge() - 16
 		&& getPosition().y > camera.getTopEdge()
-		&& getPosition().y < camera.getBottomEdge()) {
+		&& getPosition().y < camera.getBottomEdge() + 32) {
 		return true;
 	}
 	else {

@@ -9,6 +9,7 @@ enum class LevelState
 {
 	Level1,
 	Level2,
+	Level3,
 	Start,
 	Dead,
 	Win
@@ -33,6 +34,7 @@ public:
 
 	void initLevelOne();
 	void initLevelTwo();
+	void initLevelThree();
 	void resetAssets();
 
 	LevelState getState();
@@ -49,6 +51,7 @@ private:
 
 	Graphics::Sprite worldMap1;
 	Graphics::Sprite worldMap2;
+	Graphics::Sprite worldMap3;
 	Graphics::Sprite startScreen;
 	Graphics::Sprite deathScreen;
 	Graphics::Sprite winScreen;
@@ -57,7 +60,6 @@ private:
 	Math::AABB endAABB;
 	std::vector<Math::AABB> aabbVec;
 	std::vector<Math::AABB> deathBoxAABB;
-	//std::vector<class Coin> coinList;
 	std::vector<std::shared_ptr<class Entity>> entityList;
 
 	LevelState state;

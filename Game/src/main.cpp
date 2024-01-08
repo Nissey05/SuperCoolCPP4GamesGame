@@ -53,16 +53,16 @@ int main() {
 
 	// Input to reload map
 	Input::mapButton("Reload", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
-		bool b = false;
+		bool y = false;
 
 		for (auto& GamePadState : gamePadStates) {
-			b = b || GamePadState.b == ButtonState::Pressed;
+			y = y || GamePadState.y == ButtonState::Pressed;
 		}
 
 		const bool r = keyboardState.isKeyPressed(KeyCode::R);
 		const bool enter = keyboardState.isKeyPressed(KeyCode::Enter);
 
-		return b || enter || r;
+		return y || enter || r;
 	});
 
 	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);

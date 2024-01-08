@@ -36,6 +36,23 @@ Enemy::Enemy(const std::string& name, const glm::vec2& pos, Level* level, const 
 	transform.setAnchor({ 16, 32 });
 }
 
+Enemy::Enemy(const std::string& name, const glm::vec2& pos, Level* level, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath, const std::string& type) :
+	Entity(name, "enemy", pos, { {0, 0, 0}, {32, 32, 0} }),
+	level(level),
+	enemyType(type)
+{
+	auto idleSprites = ResourceManager::loadSpriteSheet(idlePath, 32, 32, 0, 0, BlendMode::AlphaBlend);
+	idleAnim = SpriteAnim{ idleSprites, 6 };
+	auto runSprites = ResourceManager::loadSpriteSheet(runPath, 32, 32, 0, 0, BlendMode::AlphaBlend);
+	runAnim = SpriteAnim{ runSprites, 6 };
+	auto fallSprites = ResourceManager::loadSpriteSheet(fallPath, 32, 32, 0, 0, BlendMode::AlphaBlend);
+	fallAnim = SpriteAnim{ fallSprites, 6 };
+	startPos = pos;
+	setState(EnemyState::Idle);
+	transform.setScale({ -1, 1 });
+	transform.setAnchor({ 16, 32 });
+}
+
 void Enemy::update(float deltaTime) {
 	switch (state) {
 	case EnemyState::Idle:
@@ -99,7 +116,7 @@ void Enemy::doMovement(float deltaTime){
 	if (name == "hulkazoid_enemy") {
 		Gravity(deltaTime);
 	}
-	
+
 	velocity += acceleration * deltaTime;
 
 	newPos += velocity * deltaTime;
@@ -125,8 +142,8 @@ void Enemy::doIdle(float deltaTime) {
 
 void Enemy::doRunning(float deltaTime){
 	doMovement(deltaTime);
-	
-	if (glm::abs(deltaPos.x) == 0.f)  (name == "vorz_enemy") ? setState(EnemyState::Return) : setState(EnemyState::Idle);
+	//std::cout << name << std::endl;
+	if (glm::length(deltaPos) == 0.f)  (name == "vorz_enemy") ? setState(EnemyState::Return) : setState(EnemyState::Idle);
 	if (deltaPos.y > 0.f) setState(EnemyState::Falling);
 	runAnim.update(deltaTime);
 }
@@ -144,7 +161,6 @@ void Enemy::doFalling(float deltaTime){
 
 void Enemy::doReturn(float deltaTime) {
 	doMovement(deltaTime);
-
 	returnToStartPos();
 }
 
@@ -184,18 +200,25 @@ void Enemy::CheckBounds() {
 
 void Enemy::Attack(std::shared_ptr<Entity> entity) {
 	if (state == EnemyState::Idle) {
-		if (entity->getPosition().y >= getPosition().y - 10 && entity->getPosition().y <= getPosition().y + 42) {
-			if (entity->getPosition().x > getPosition().x) {
-				setStartPos(getPosition());
-				setAccelerationX(100);
-				setState(EnemyState::Running);
-				std::cout << "charge" << std::endl;
+		if (enemyType == "horizontal") {
+			if (entity->getPosition().y >= getPosition().y - 10 && entity->getPosition().y <= getPosition().y + 42) {
+				if (entity->getPosition().x > getPosition().x) {
+					setStartPos(getPosition());
+					setAccelerationX(100);
+					setState(EnemyState::Running);
+				}
+				else if (entity->getPosition().x < getPosition().x) {
+					setStartPos(getPosition());
+					setAccelerationX(-100);
+					setState(EnemyState::Running);
+				}
 			}
-			else if (entity->getPosition().x < getPosition().x) {
-				setStartPos(getPosition());
-				setAccelerationX(-100);
-				setState(EnemyState::Running);
-				std::cout << "charge" << std::endl;
+		}
+		else if (enemyType == "vertical") {
+			if (entity->getPosition().x >= getPosition().x - 32 && entity->getPosition().x <= getPosition().x + 32) {
+					setStartPos(getPosition());
+					setAccelerationY(500);
+					setState(EnemyState::Running);
 			}
 		}
 	}
@@ -206,7 +229,7 @@ void Enemy::returnToStartPos() {
 	auto newPos = getPosition();
 	auto dPos = initialPos - newPos;
 	if (dPos.x != 0) setVelocityX(dPos.x > 0 ? 100 : -100);
-
+	if (dPos.y != 0) setVelocityX(dPos.y > 0 ? 100 : -100);
 	if (glm::abs(dPos.x) < 5 && glm::abs(dPos.y) < 5) {
 			setVelocity({ 0, 0 });
 			setState(EnemyState::Idle);

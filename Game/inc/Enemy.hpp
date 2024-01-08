@@ -31,6 +31,7 @@ public:
 protected:
 	Enemy() = default;
 	explicit Enemy(const std::string& name, const glm::vec2& pos, class Level* level, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath);
+	explicit Enemy(const std::string& name, const glm::vec2& pos, class Level* level, const Math::AABB& aabb, std::string idlePath, std::string runPath, std::string fallPath, const std::string& type);
 
 private:
 	void setState(EnemyState newState);
@@ -49,6 +50,8 @@ private:
 	Graphics::SpriteAnim idleAnim;
 	Graphics::SpriteAnim runAnim;
 	Graphics::SpriteAnim fallAnim;
+
+	std::string enemyType;
 
 	bool gocheck = false;
 

@@ -11,7 +11,7 @@
 using namespace std::string_literals;
 using namespace Graphics;
 
-Vorz::Vorz(const glm::vec2& pos, Level* level)
+Vorz::Vorz(const glm::vec2& pos, Level* level, const std::string& type)
 	: Enemy(
 		"vorz_enemy"s,
 		pos,
@@ -19,7 +19,8 @@ Vorz::Vorz(const glm::vec2& pos, Level* level)
 		{ {0, 0, 0}, {32, 32, 0} },
 		"assets/Pinky/Vorz.png",
 		"assets/Pinky/Vorz.png",
-		"assets/Pinky/Vorz.png"
+		"assets/Pinky/Vorz.png",
+		type
 	)
 {
 }

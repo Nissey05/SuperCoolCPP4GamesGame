@@ -270,11 +270,11 @@ void Level::initLevelTwo(){
 
 	// Reset all entities but player and add enemies
 	entityList.erase(entityList.begin() + 1, entityList.end());
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 16, 1642 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 21, 1256}, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 708, 802 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 661, 1046 }, this));
-	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 658, 2749 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 16, 1642 }, this, "horizontal"));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 21, 1256}, this, "horizontal"));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 708, 802 }, this, "horizontal"));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 661, 1046 }, this, "horizontal"));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 658, 2749 }, this, "horizontal"));
 	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 364, 2639 }, this));
 	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 762, 2612 }, this));
 	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 278, 2464 }, this));
@@ -347,6 +347,10 @@ void Level::initLevelThree()
 	// Reset all entities but player and add enemies
 	entityList.erase(entityList.begin() + 1, entityList.end());
 	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 620, 675 }, this));
+	entityList.push_back(std::make_shared<Hulkazoid>(glm::vec2{ 6958, 690 }, this));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 3033, 681 }, this, "horizontal"));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 1032, 255 }, this, "vertical"));
+	entityList.push_back(std::make_shared<Vorz>(glm::vec2{ 6652, 516 }, this, "vertical"));
 	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 410, 619 }, this));
 	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 930, 723 }, this));
 	entityList.push_back(std::make_shared<Coin>(glm::vec2{ 965, 723 }, this));

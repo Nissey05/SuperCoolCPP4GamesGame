@@ -423,12 +423,7 @@ void Level::setLevelMap(LevelState map) {
 
 void Level::drawAssets(Graphics::Image& image, const Math::Camera2D& camera) {
 	for (const auto& entity : entityList) {
-		if (entity->checkCameraBounds(camera)) {
-			entity->draw(image, camera);
-		}
-		else {
-			entity->setVelocityX(0.f);
-		}
+		entity->checkCameraBounds(camera) ? entity->draw(image, camera) : entity->setVelocityX(0.f);
 	}
 } 
 

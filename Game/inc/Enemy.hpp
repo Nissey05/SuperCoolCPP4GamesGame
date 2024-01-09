@@ -19,6 +19,7 @@ public:
 
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
 
+
 	virtual void Gravity(float deltaTime) override;
 
 	void Attack(std::shared_ptr<Entity> entity);

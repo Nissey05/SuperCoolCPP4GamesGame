@@ -62,4 +62,5 @@ protected:
 	Math::Transform2D transform;
 	glm::vec2 velocity{ 0 };
 	glm::vec2 acceleration{ 0 };
+
 };

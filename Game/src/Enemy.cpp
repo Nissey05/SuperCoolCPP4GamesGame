@@ -142,9 +142,11 @@ void Enemy::doIdle(float deltaTime) {
 
 void Enemy::doRunning(float deltaTime){
 	doMovement(deltaTime);
-	//std::cout << name << std::endl;
-	if (glm::length(deltaPos) == 0.f)  (name == "vorz_enemy") ? setState(EnemyState::Return) : setState(EnemyState::Idle);
-	if (deltaPos.y > 0.f) setState(EnemyState::Falling);
+
+	if (glm::length(deltaPos) == 0.0f) (name == "vorz_enemy") ? setState(EnemyState::Return) : setState(EnemyState::Idle);
+	
+	if (deltaPos.y > 0.f && name != "vorz_enemy") setState(EnemyState::Falling);
+
 	runAnim.update(deltaTime);
 }
 
@@ -229,7 +231,7 @@ void Enemy::returnToStartPos() {
 	auto newPos = getPosition();
 	auto dPos = initialPos - newPos;
 	if (dPos.x != 0) setVelocityX(dPos.x > 0 ? 100 : -100);
-	if (dPos.y != 0) setVelocityX(dPos.y > 0 ? 100 : -100);
+	if (dPos.y != 0) setVelocityY(dPos.y > 0 ? 100 : -100);
 	if (glm::abs(dPos.x) < 5 && glm::abs(dPos.y) < 5) {
 			setVelocity({ 0, 0 });
 			setState(EnemyState::Idle);

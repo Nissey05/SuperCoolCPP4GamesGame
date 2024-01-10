@@ -38,7 +38,7 @@ Level::Level(std::shared_ptr<Player> player)
 	entityList.push_back(player);
 }
 
-
+//draws background sprite and calls for sprites to be drawn depending on levelstate.
 void Level::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 	switch (state)
 	{
@@ -65,6 +65,7 @@ void Level::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		break;
 	}
 
+//if DEBUG mode is on, draw all AABBs from Vectors aabbVec, deathBoxAABB & endAABB
 #if _DEBUG
 	for (const auto& aabb : aabbVec)
 		image.drawAABB(camera * aabb, Color::Yellow, {}, FillMode::WireFrame);
@@ -75,6 +76,7 @@ void Level::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 #endif
 }
 
+//sets state and calls for a function upon swap
 void Level::setState(LevelState newState) {
 	if (newState != state) {
 		switch (newState) {
@@ -97,8 +99,6 @@ void Level::setState(LevelState newState) {
 			resetAssets();
 			break;
 		}
-		
-
 		state = newState;
 	}
 }
@@ -107,8 +107,8 @@ LevelState Level::getState() {
 	return state;
 }
 
+// Calls for functions and checks if entity should be removed every frame depending on state.
 void Level::update(float deltaTime) {
-	if (Input::getButtonDown("f")) nextLevel();
 	switch (state) {
 	case LevelState::Start:
 		if(Input::getButtonDown("start")) nextLevel();
@@ -119,7 +119,6 @@ void Level::update(float deltaTime) {
 
 			// Checks if entity is not a nullptr
 			if (entity) {
-			//	if (i != 0) continue;
 				entity->update(deltaTime);
 
 				if (entity->getName() != "player" && entity->getHP() <= 0) {
@@ -136,7 +135,6 @@ void Level::update(float deltaTime) {
 
 			// Checks if entity is not a nullptr
 			if (entity) {
-			//	if (i != 0) continue;
 				entity->update(deltaTime);
 
 				if (entity->getName() != "player" && entity->getHP() <= 0) {
@@ -157,7 +155,6 @@ void Level::update(float deltaTime) {
 
 			// Checks if entity is not a nullptr
 			if (entity) {
-				//	if (i != 0) continue;
 				entity->update(deltaTime);
 
 				if (entity->getName() != "player" && entity->getHP() <= 0) {
@@ -178,7 +175,6 @@ void Level::update(float deltaTime) {
 			entityList[0]->setLives(6);
 			setState(LevelState::Level1);
 		}
-			
 		break;
 	case LevelState::Win:
 		if (Input::getButtonDown("use")) setState(LevelState::Start);
@@ -423,6 +419,7 @@ void Level::setLevelMap(LevelState map) {
 
 void Level::drawAssets(Graphics::Image& image, const Math::Camera2D& camera) {
 	for (const auto& entity : entityList) {
+		// Checks if entity is inside of camera scope, if so draw, if not set x velocity to 0
 		entity->checkCameraBounds(camera) ? entity->draw(image, camera) : entity->setVelocityX(0.f);
 	}
 } 
@@ -443,10 +440,12 @@ void Level::resolveCollisionForLevel(Entity* entity) {
 		}
 	}
 
+	// Resolve collisions between entity and deathboxxes
 	for (const auto& death : deathBoxAABB) {
 		if (entity->getAABB().intersect(death)) entity->doDamage();
 	}
 
+	//Resolve collisions between entity and endAABB
 	if (entityList[0]->getAABB().intersect(endAABB)) nextLevel();
 }
 

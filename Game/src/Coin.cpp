@@ -13,22 +13,21 @@ Coin::Coin(const glm::vec2& pos, Level* level)
 	auto idleSprites = ResourceManager::loadSpriteSheet("assets/Pinky/CoinAnim.png", 22, 24, 0, 0, BlendMode::AlphaBlend);
 	idleAnim = SpriteAnim{ idleSprites, 6 };
 	transform.setAnchor({ 11, 19 });
-	//healthPoints = 1;
 }
 
+//Updates the coins animation
 void Coin::update(float deltaTime)
 {
 	idleAnim.update(deltaTime);
-
-	//level->resolveCollisionForLevel(this);
 }
 
+//Draws the coin on the screen
 void Coin::draw(Graphics::Image& image, const Math::Camera2D& camera)
 {
 	image.drawSprite(idleAnim, camera * transform);
 
+//if DEBUG mode is enabled, draw AABB
 #if _DEBUG
 	image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
-	auto pos = camera * transform;
 #endif
 }

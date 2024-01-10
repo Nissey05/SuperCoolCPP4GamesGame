@@ -37,6 +37,7 @@ const Math::AABB Entity::getAABB() const {
 	return transform * aabb;
 }
 
+//Checks if 2 entities collide
 bool Entity::collides(const Entity& entity) const {
 	return getAABB().intersect(entity.getAABB());
 }
@@ -117,13 +118,13 @@ const int Entity::getCoins() const
 	return coins;
 }
 
-
-
+//Reset Speed
 void Entity::resetSpeed() {
 	setAcceleration({ 0, 0 });
 	setVelocity({ 0, 0 });
 }
 
+//Checks if Entity is inside the scope of the Camera.
 bool Entity::checkCameraBounds(const Math::Camera2D& camera)
 {
 	if (getPosition().x  < camera.getRightEdge() + 16

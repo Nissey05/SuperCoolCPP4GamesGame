@@ -43,7 +43,7 @@ void Player::init(std::shared_ptr<Level> level)
 {
 	this->level = level;
 }
-
+//Updates player every frame, calls functions based on state
 void Player::update(float deltaTime) {
 	if (healthPoints <= 0) setState(State::Dead);
 	switch (state) {
@@ -66,6 +66,7 @@ void Player::update(float deltaTime) {
 	
 }
 
+//draw's sprites on the screen based on player state
 void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 	switch (state)
 	{
@@ -85,7 +86,7 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 		image.drawSprite(idleAnim, camera * transform);
 		break;
 	}
-
+	//if DEBUG mode is enabled draws player's AABB & state
 #if _DEBUG
 	image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
 	auto pos = camera * transform;
@@ -93,6 +94,7 @@ void Player::draw(Graphics::Image& image, const Math::Camera2D& camera) {
 #endif
 }
 
+//checks if newState isnt same as old state then sets state.
 void Player::setState(State newState) {
 	if (newState != state) {
 		switch (newState) {
@@ -107,11 +109,11 @@ void Player::setState(State newState) {
 		case State::Dead:
 			break;
 		}
-
 		state = newState;
 	}
 }
-
+//Main movement function which applies dampening, applies & calculates movement through acceleration & velocity, applies gravity,
+//resolves collision and calculates deltaPos (change in position between last 2 frames).
 void Player::doMovement(float deltaTime) {
 	auto initialPos = transform.getPosition();
 	auto newPos = initialPos;
@@ -163,6 +165,10 @@ void Player::doMovement(float deltaTime) {
 	deltaPos = getPosition() - initialPos;
 }
 
+//START Following segment are functions which are called during certain states, they always call doMovement and update the SpriteAnimation
+
+//Function which is called every frame while player is in Idle state
+//Checks if certain movements have happened to change states, or if any of the inputs for jump have been given
 void Player::doIdle(float deltaTime) {
 	doMovement(deltaTime);
 
@@ -181,6 +187,9 @@ void Player::doIdle(float deltaTime) {
 	idleAnim.update(deltaTime);
 }
 
+//Function which is called every frame while player is in the Running state
+//Checks if x movement is halted to swap back to Idle, or if y movement is started to swap to falling. Jumping is allowed and
+//sprite rotates depending on where player is moving.
 void Player::doRunning(float deltaTime) {
 	doMovement(deltaTime);
 
@@ -201,18 +210,26 @@ void Player::doRunning(float deltaTime) {
 	runAnim.update(deltaTime);
 }
 
+//Function which is called every frame while player is in the Jumping state
+//Checks if velocity gets positive or equal to 0 to go to Falling state
 void Player::doJump(float deltaTime) {
 	doMovement(deltaTime);
-	if (velocity.y > 0.0f) setState(State::Falling);
+	if (velocity.y >= 0.0f) setState(State::Falling);
 	jumpAnim.update(deltaTime);
 }
 
+//Function which is called every frame while player is in the Falling state
+//Checks if the y velocity gets less than 1 to swap to Idle
 void Player::doFalling(float deltaTime) {
 	doMovement(deltaTime);
 	if (velocity.y < 1.0f) setState(State::Idle);
 	fallAnim.update(deltaTime);
 }
 
+//Function which is called every frame while player is in the Dead state
+//This Function does not all for movement but resets Velocity and Acceleration.
+//Checks if Lives are more than 0 and then resets player to the level they were in. 
+//If lives is less than or equal to 0 set LevelState to Dead
 void Player::doDead(float deltaTime){
 	resetSpeed();
 	if (lives > 0) {
@@ -236,10 +253,14 @@ void Player::doDead(float deltaTime){
 	}
 }
 
+//END State Functions
+
+//Applies Gravity to the y velocity based on the time between the last 2 frames.
 void Player::Gravity(float deltaTime) {
 	velocity.y += gravity * deltaTime;
 }
 
+//Checks if player is in screen bounds, if not, correct player to be inside of screen bounds
 void Player::CheckBounds() {
 	auto aabb = getAABB();
 	glm::vec2 correction{ 0.f };
@@ -275,6 +296,7 @@ float Player::getJumpSpeed() {
 	return jumpSpeed;
 }
 
+//Checks if coins are Equal or greater than 100, if so, remove 100 coins and give the player an extra life.
 void Player::coinCheck() {
 	if (coins >= 100) {
 		coins -= 100;
